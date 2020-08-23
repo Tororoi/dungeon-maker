@@ -1,14 +1,18 @@
+//
+
+//---------------------------Running the game-----------------------------//
+
 //set scale of sprite
 let SCALE = 3;
 
-//canvas
-let canvas = document.querySelector('canvas');
-let ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+//Game Canvas
+let gameCanvas = document.querySelector('.map');
+let gameCtx = gameCanvas.getContext('2d');
+gameCtx.imageSmoothingEnabled = false;
 //coordinates of mouse
 let mouseX;
 let mouseY;
-//start with mouse outside of canvas
+//start with mouse outside of gameCanvas
 let mousePresent = false;
 
 function collide(obj1,obj2) {
@@ -60,9 +64,9 @@ class Box {
   get yMin() {return this.y;}
 
   draw() {
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y,this.width, this.height)
-    ctx.fillRect(this.x, this.y-this.height, this.width, this.height)
+    gameCtx.fillStyle = this.color;
+    gameCtx.fillRect(this.x, this.y,this.width, this.height)
+    gameCtx.fillRect(this.x, this.y-this.height, this.width, this.height)
   }
 }
 
@@ -164,12 +168,12 @@ class Skeleton {
     let deltaY = this.yD/this.vector
     //movement
     if (!this.collideX) {
-      if (this.x + deltaX >= 0 && this.x + this.width + deltaX <= canvas.width) {
+      if (this.x + deltaX >= 0 && this.x + this.width + deltaX <= gameCanvas.width) {
           this.x += deltaX*this.speed*SCALE;
       }
     }
     if (!this.collideY) {
-      if (this.y + deltaY >= 0 && this.y + this.height + deltaY <= canvas.height) {
+      if (this.y + deltaY >= 0 && this.y + this.height + deltaY <= gameCanvas.height) {
           this.y += deltaY*this.speed*SCALE;
       }
     }
@@ -244,19 +248,19 @@ class Skeleton {
   drawFrame() {
     //Create collision circles to indicate when mouse is close enough to interact with clicking
     if (this.vector < this.width) {
-      ctx.beginPath();
-      ctx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
-      ctx.fillStyle = "rgb(129, 176, 72, 0.5)";
-      ctx.fill();
+      gameCtx.beginPath();
+      gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
+      gameCtx.fillStyle = "rgb(129, 176, 72, 0.5)";
+      gameCtx.fill();
     }
     if (this.vector < this.width/4) {
-      ctx.beginPath();
-      ctx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
-      ctx.fillStyle = "rgb(87, 139, 40, 0.5)";
-      ctx.fill();
+      gameCtx.beginPath();
+      gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
+      gameCtx.fillStyle = "rgb(87, 139, 40, 0.5)";
+      gameCtx.fill();
     }
     //draw a specific frame from the spritesheet
-    ctx.drawImage(this.img,
+    gameCtx.drawImage(this.img,
                 this.currentLoopIndex * this.rawWidth, this.direction * this.rawHeight, this.rawWidth, this.rawHeight,
                 this.x, this.y, this.width, this.height);
   }
@@ -273,26 +277,26 @@ let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
 let wall = new Box(32,32,170,175)
 
 //Listen for mouse movement
-canvas.addEventListener('mousemove', mouseMoveListener);
+gameCanvas.addEventListener('mousemove', mouseMoveListener);
 function mouseMoveListener(e) {
-   //get mouse coordinates within the canvas
+   //get mouse coordinates within the gameCanvas
    mouseX=e.offsetX;
    mouseY=e.offsetY;
    s.updateVectors();
 }
 
 //Listen for mouse presence
-canvas.addEventListener('mouseover', mouseOverListener)
+gameCanvas.addEventListener('mouseover', mouseOverListener)
 function mouseOverListener(e) {
     mousePresent=true;
 }
-canvas.addEventListener('mouseout', mouseOutListener)
+gameCanvas.addEventListener('mouseout', mouseOutListener)
 function mouseOutListener(e) {
     mousePresent=false;
 }
 
 //Listen for clicking
-canvas.addEventListener('click', clickListener)
+gameCanvas.addEventListener('click', clickListener)
 function clickListener(e) {
     s.changeState();
 }
@@ -320,7 +324,7 @@ function drawObjects(array) {
 let objects = [s,wall];
 
 function drawLoop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
     objects.sort(compareZAxis);
     drawObjects(objects);

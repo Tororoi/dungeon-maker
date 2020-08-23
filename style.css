@@ -1,3 +1,8 @@
+.generator {
+    border: 1px solid black;
+    background-color: #4a8600;
+}
+
 .map {
     border: 1px solid black;
     background-color: #9FD162;
