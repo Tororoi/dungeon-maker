@@ -8,8 +8,8 @@ let offScreenCVS = document.createElement('canvas');
 let offScreenCTX = offScreenCVS.getContext("2d");
 offScreenCTX.fillStyle = "red";
 //Set the dimensions of the drawing canvas
-  offScreenCVS.width = 32;
-  offScreenCVS.height = 20;
+  offScreenCVS.width = 16;
+  offScreenCVS.height = 10;
 
 //Create an Image with a default source of the existing onscreen canvas
 let img = new Image;
@@ -135,14 +135,14 @@ class Box {
   get xMax() {return this.x+this.width;}
   get yMax() {return this.y+this.height;}
   get xMin() {return this.x;}
-  get yMin() {return this.y+this.height/2;}
+  get yMin() {return this.y;}
 
   draw() {
     gameCtx.fillStyle = this.color;
     gameCtx.fillRect(this.x, this.y,this.width, this.height);
-    gameCtx.fillRect(this.x, this.y-this.height/2, this.width, this.height/2);
+    gameCtx.fillRect(this.x, this.y-this.height, this.width, this.height);
     gameCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    gameCtx.fillRect(this.x, this.y-this.height/2, this.width, this.height/2);
+    gameCtx.fillRect(this.x, this.y-this.height, this.width, this.height);
   }
 }
 
@@ -324,18 +324,18 @@ class Skeleton {
   
   drawFrame() {
     //Create collision circles to indicate when mouse is close enough to interact with clicking
-    if (this.vector < this.width) {
-      gameCtx.beginPath();
-      gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
-      gameCtx.fillStyle = "rgb(129, 176, 72, 0.5)";
-      gameCtx.fill();
-    }
-    if (this.vector < this.width/4) {
-      gameCtx.beginPath();
-      gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
-      gameCtx.fillStyle = "rgb(87, 139, 40, 0.5)";
-      gameCtx.fill();
-    }
+    // if (this.vector < this.width) {
+    //   gameCtx.beginPath();
+    //   gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
+    //   gameCtx.fillStyle = "rgb(129, 176, 72, 0.5)";
+    //   gameCtx.fill();
+    // }
+    // if (this.vector < this.width/4) {
+    //   gameCtx.beginPath();
+    //   gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
+    //   gameCtx.fillStyle = "rgb(87, 139, 40, 0.5)";
+    //   gameCtx.fill();
+    // }
     //draw a specific frame from the spritesheet
     gameCtx.drawImage(this.img,
                 this.currentLoopIndex * this.rawWidth, this.direction * this.rawHeight, this.rawWidth, this.rawHeight,
@@ -343,7 +343,22 @@ class Skeleton {
   }
   
   draw() {
-    collide(this, wall)
+    let closestBox = Box.all[0];
+    function checkProximity(a,b) {
+      return Math.hypot(a.center-b.center,a.z-b.z);
+    }
+    Box.all.forEach(b => {
+      collide(this, b)
+      let d = checkProximity(this,b)
+      let dPrev = checkProximity(this,closestBox)
+      if (d<dPrev) {closestBox = b}
+    });
+    gameCtx.beginPath();
+    gameCtx.moveTo(this.center, this.z);
+    gameCtx.lineTo(closestBox.center, closestBox.z);
+    gameCtx.stroke();
+    collide(this,closestBox);
+
     this.animate();
     this.changeMoving();
     this.drawFrame();
@@ -353,8 +368,8 @@ class Skeleton {
 Skeleton.all = [];
 Box.all = [];
 
-// let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
-// let wall = new Box(32,32,170,175)
+let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
+let wall = new Box(32,32,170,175)
 
 //Listen for mouse movement
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
@@ -362,7 +377,7 @@ function mouseMoveListener(e) {
    //get mouse coordinates within the gameCanvas
    mouseX=e.offsetX;
    mouseY=e.offsetY;
-   s.updateVectors();
+   Skeleton.all.forEach(s => s.updateVectors());
 }
 
 //Listen for mouse presence
@@ -378,8 +393,7 @@ function mouseOutListener(e) {
 //Listen for clicking
 gameCanvas.addEventListener('click', clickListener)
 function clickListener(e) {
-  Skeleton.all.forEach()  
-  s.changeState();
+  Skeleton.all.forEach(s => s.changeState());
 }
 
 function compareZAxis(obj1,obj2) {
@@ -424,6 +438,8 @@ function generateMap(e) {
   let imageData = offScreenCTX.getImageData(0,0,offScreenCVS.width,offScreenCVS.height);
   //reset objects on map
   objects = [];
+  Skeleton.all = [];
+  Box.all = [];
   //Iterate through pixels and make objects each time a color matches
   for (let i=0; i<imageData.data.length; i+=4) {
     let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
@@ -431,14 +447,15 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Box(32,32,x*10,y*10))
+        objects.push(new Box(40,40,x*40,y*40))
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0));
+        objects.push(new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,x*40,y*40));
         break;
       default: 
         //transparent pixel
     }
   }
+  console.log(Box.all)
 }
