@@ -13,10 +13,10 @@ let mousePresent = false;
 
 function collide(obj1,obj2) {
   // let collided = !(obj1.xMax<obj2.x || obj1.x>obj2.xMax || obj1.y>obj2.yMax || obj1.yMax<obj2.y);
-  let insideW = !(obj1.xMax+Math.sign(obj1.xD)<obj2.x || obj1.x+Math.sign(obj1.xD)>obj2.xMax);
-  let insideH = !(obj1.y+Math.sign(obj1.yD)>obj2.yMax || obj1.yMax+Math.sign(obj1.yD)<obj2.y);
-  let outsideW = !(obj1.xMax-Math.sign(obj1.xD)<obj2.x || obj1.x-Math.sign(obj1.xD)>obj2.xMax);
-  let outsideH = !(obj1.y-Math.sign(obj1.yD)>obj2.yMax || obj1.yMax-Math.sign(obj1.yD)<obj2.y);
+  let insideW = !(obj1.xMax+Math.sign(obj1.xD)<obj2.xMin || obj1.xMin+Math.sign(obj1.xD)>obj2.xMax);
+  let insideH = !(obj1.yMin+Math.sign(obj1.yD)>obj2.yMax || obj1.yMax+Math.sign(obj1.yD)<obj2.yMin);
+  let outsideW = !(obj1.xMax-Math.sign(obj1.xD)<obj2.xMin || obj1.xMin-Math.sign(obj1.xD)>obj2.xMax);
+  let outsideH = !(obj1.yMin-Math.sign(obj1.yD)>obj2.yMax || obj1.yMax-Math.sign(obj1.yD)<obj2.yMin);
   
   switch(true) {
     case (insideW&&!insideH):
@@ -52,11 +52,17 @@ class Box {
     this.y = y;
     this.color = "white";
   }
+  get z() {return this.y+this.height/2}
+  get center() {return this.x+this.width/2}
   get xMax() {return this.x+this.width;}
   get yMax() {return this.y+this.height;}
+  get xMin() {return this.x;}
+  get yMin() {return this.y;}
+
   draw() {
     ctx.fillStyle = this.color;
     ctx.fillRect(this.x, this.y,this.width, this.height)
+    ctx.fillRect(this.x, this.y-this.height, this.width, this.height)
   }
 }
 
@@ -105,8 +111,12 @@ class Skeleton {
   }
   get width() {return this.rawWidth*SCALE;}
   get height() {return this.rawHeight*SCALE;}
-  get xMax() {return this.x+this.width;}
+  get z() {return this.y+this.height}
+  get center() {return this.x+this.width/2}
+  get xMax() {return this.x+this.width*0.7;}
   get yMax() {return this.y+this.height;}
+  get xMin() {return this.x+this.width*0.3}
+  get yMin() {return this.y+this.height*0.85;}
   get direction() {
     //switch row of spritesheet for proper direction
     switch (true) {
@@ -231,7 +241,7 @@ class Skeleton {
     }
   }
   
-  draw() {
+  drawFrame() {
     //Create collision circles to indicate when mouse is close enough to interact with clicking
     if (this.vector < this.width) {
       ctx.beginPath();
@@ -251,16 +261,16 @@ class Skeleton {
                 this.x, this.y, this.width, this.height);
   }
   
-  runAnimation() {
+  draw() {
     collide(this, wall)
     this.animate();
     this.changeMoving();
-    this.draw();
+    this.drawFrame();
   }
 }
 
 let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
-let wall = new Box(300,50,170,175)
+let wall = new Box(32,32,170,175)
 
 //Listen for mouse movement
 canvas.addEventListener('mousemove', mouseMoveListener);
@@ -287,13 +297,33 @@ function clickListener(e) {
     s.changeState();
 }
 
+function compareZAxis(obj1,obj2) {
+    if (obj1.z > obj2.z) {
+        return 1;
+    } else if (obj1.z === obj2.z) {
+        if (obj1.center <= obj2.center) {
+            return 1;
+        } else {
+            return -1;
+        }
+    } else {
+        return -1;
+    }
+}
+
+function drawObjects(array) {
+    for (let i=0; i<array.length; i++) {
+        array[i].draw();
+    }
+}
+
+let objects = [s,wall];
+
 function drawLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-    //Draw wall
-    wall.draw();
-    //Draw Skeletons
-    s.runAnimation();
+
+    objects.sort(compareZAxis);
+    drawObjects(objects);
 
     window.requestAnimationFrame(drawLoop);
 }
