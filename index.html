@@ -12,7 +12,24 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <canvas class="generator" width="256" height="160"></canvas>
+    <div class="generator-container">
+        <canvas class="generator" width="256" height="160"></canvas>
+        <div class="color-select">
+            <div class="color">
+                <div class="swatch" id="transparent"></div>
+                <p>Eraser</p>
+            </div>
+            <div class="color">
+                <div class="swatch" id="white"></div>
+                <p>Skeleton</p>
+            </div>
+            <div class="color">
+                <div class="swatch" id="black"></div>
+                <p>Wall</p>
+            </div>
+        </div>
+    </div>
+    <button class="generate-btn">Generate Map</button>
     <canvas class="map" width="640px" height="400px"></canvas>
     <ol>
       <li>Skeleton will follow mouse while it's on the canvas.</li>

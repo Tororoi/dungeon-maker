@@ -1,7 +1,58 @@
+/* Generator CSS */
+
+.generator-container {
+    display: flex;
+}
+
 .generator {
     border: 1px solid black;
     background-color: #4a8600;
 }
+
+.color-select {
+    display: flex;
+    flex-flow: column wrap;
+}
+
+.color {
+    display: flex;
+}
+
+.swatch {
+    width: 24px;
+    height: 24px;
+    margin: 10px;
+    border: 1px solid black;
+}
+
+.swatch:hover {
+    border: 2px solid red;
+    margin: 9px;
+}
+
+.color p {
+    align-self: center;
+}
+
+.color #transparent {
+    background: linear-gradient(#facdcd, #ff9696)
+}
+
+.color #white {
+    background-color: white;
+}
+
+.color #black {
+    background-color: black;
+}
+
+.generate-btn {
+    height: 24px;
+    margin: 10px;
+    align-self: center;
+}
+
+/* Game CSS */
 
 .map {
     border: 1px solid black;
