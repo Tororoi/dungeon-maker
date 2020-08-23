@@ -88,36 +88,74 @@ let mouseY;
 //start with mouse outside of gameCanvas
 let mousePresent = false;
 
+// function collide(obj1,obj2) {
+//   // let collided = !(obj1.xMax<obj2.x || obj1.x>obj2.xMax || obj1.y>obj2.yMax || obj1.yMax<obj2.y);
+//   let insideW = !(obj1.xMax+Math.sign(obj1.xD)<obj2.xMin || obj1.xMin+Math.sign(obj1.xD)>obj2.xMax);
+//   let insideH = !(obj1.yMin+Math.sign(obj1.yD)>obj2.yMax || obj1.yMax+Math.sign(obj1.yD)<obj2.yMin);
+//   let outsideW = !(obj1.xMax-Math.sign(obj1.xD)<obj2.xMin || obj1.xMin-Math.sign(obj1.xD)>obj2.xMax);
+//   let outsideH = !(obj1.yMin-Math.sign(obj1.yD)>obj2.yMax || obj1.yMax-Math.sign(obj1.yD)<obj2.yMin);
+
+
+//   if (insideW&&insideH&&!outsideW) {
+//     obj1.unMoveX();
+//   }
+    
+//   if (insideW&&insideH&&!outsideH) {
+//     obj1.unMoveY();
+//   }
+
+//   switch(true) {
+//     case (insideW&&!insideH):
+//       obj1.collideX = false;
+//       obj1.collideY = false;
+//       obj2.color = "red";
+//       break;
+//     case (!insideW&&insideH):
+//       obj1.collideX = false;
+//       obj1.collideY = false;
+//       obj2.color = "blue";
+//       break;
+//     case (insideW&&insideH&&!outsideW):
+//       obj1.collideX = true;
+//       obj2.color = "#4d00c7";
+//       break;
+//     case (insideW&&insideH&&!outsideH):
+//       obj1.collideY = true;
+//       obj2.color = "#c700a1";
+//       break;
+//     default: 
+//       obj1.collideX = false;
+//       obj1.collideY = false;
+//       obj2.color = "black";
+//   }
+// }
+
 function collide(obj1,obj2) {
-  // let collided = !(obj1.xMax<obj2.x || obj1.x>obj2.xMax || obj1.y>obj2.yMax || obj1.yMax<obj2.y);
-  let insideW = !(obj1.xMax+Math.sign(obj1.xD)<obj2.xMin || obj1.xMin+Math.sign(obj1.xD)>obj2.xMax);
-  let insideH = !(obj1.yMin+Math.sign(obj1.yD)>obj2.yMax || obj1.yMax+Math.sign(obj1.yD)<obj2.yMin);
-  let outsideW = !(obj1.xMax-Math.sign(obj1.xD)<obj2.xMin || obj1.xMin-Math.sign(obj1.xD)>obj2.xMax);
-  let outsideH = !(obj1.yMin-Math.sign(obj1.yD)>obj2.yMax || obj1.yMax-Math.sign(obj1.yD)<obj2.yMin);
+  let yOverlap = !!((obj1.yMin < obj2.yMax)&&(obj1.yMax > obj2.yMin));
+  let xOverlap = !!((obj1.xMin < obj2.xMax)&&(obj1.xMax > obj2.xMin));
   
-  switch(true) {
-    case (insideW&&!insideH):
-      obj1.collideX = false;
-      obj1.collideY = false;
-      obj2.color = "red";
-      break;
-    case (!insideW&&insideH):
-      obj1.collideX = false;
-      obj1.collideY = false;
-      obj2.color = "blue";
-      break;
-    case (insideW&&insideH&&!outsideW):
-      obj1.collideX = true;
-      obj2.color = "#4d00c7";
-      break;
-    case (insideW&&insideH&&!outsideH):
-      obj1.collideY = true;
-      obj2.color = "#c700a1";
-      break;
-    default: 
-      obj1.collideX = false;
-      obj1.collideY = false;
-      obj2.color = "black";
+  let leftOf2 = !!(obj1.center<obj2.center);
+  let rightOf2 = !!(obj1.center>obj2.center);
+  let upOf2 = !!(obj1.z<obj2.z);
+  let downOf2 = !!(obj1.z>obj2.z);
+
+  let checkEast = !!((obj1.xMax+SCALE*Math.sign(obj1.xD) >= obj2.xMin)&&yOverlap&&leftOf2);
+  let checkWest = !!((obj1.xMin+SCALE*Math.sign(obj1.xD) <= obj2.xMax)&&yOverlap&&rightOf2);
+  let checkSouth = !!((obj1.yMax+SCALE*Math.sign(obj1.yD) >= obj2.yMin)&&xOverlap&&upOf2);
+  let checkNorth = !!((obj1.yMin+SCALE*Math.sign(obj1.yD) <= obj2.yMax)&&xOverlap&&downOf2);
+
+  // if (xOverlap&&yOverlap) {
+  //   obj2.color = "red";
+  // } else {
+  //   obj2.color = "black";
+  // }
+
+  if (checkEast||checkWest) {
+    obj1.unMoveX();
+  }
+
+  if (checkSouth||checkNorth) {
+    obj1.unMoveY();
   }
 }
 
@@ -194,9 +232,9 @@ class Skeleton {
   get height() {return this.rawHeight*SCALE;}
   get z() {return this.y+this.height}
   get center() {return this.x+this.width/2}
-  get xMax() {return this.x+this.width*0.7;}
+  get xMax() {return this.x+this.width*0.65;}
   get yMax() {return this.y+this.height;}
-  get xMin() {return this.x+this.width*0.3}
+  get xMin() {return this.x+this.width*0.35}
   get yMin() {return this.y+this.height*0.85;}
   get direction() {
     //switch row of spritesheet for proper direction
@@ -244,16 +282,36 @@ class Skeleton {
     let deltaX = this.xD/this.vector
     let deltaY = this.yD/this.vector
     //movement
-    if (!this.collideX) {
-      if (this.x + deltaX >= 0 && this.x + this.width + deltaX <= gameCanvas.width) {
+    // if (!this.collideX) {
+      if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
           this.x += deltaX*this.speed*SCALE;
       }
-    }
-    if (!this.collideY) {
-      if (this.y + deltaY >= 0 && this.y + this.height + deltaY <= gameCanvas.height) {
+    // }
+    // if (!this.collideY) {
+      if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= gameCanvas.height) {
           this.y += deltaY*this.speed*SCALE;
       }
-    }
+    // }
+     //calling the angle math here adjusts character's movement even if mouse stops moving
+     this.updateVectors();
+  }
+
+  unMoveX() {
+    let deltaX = this.xD/this.vector
+    //movement
+      if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
+          this.x -= deltaX*this.speed*SCALE;
+      }
+     //calling the angle math here adjusts character's movement even if mouse stops moving
+     this.updateVectors();
+  }
+
+  unMoveY() {
+    let deltaY = this.yD/this.vector
+    //movement
+      if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= gameCanvas.height) {
+          this.y -= deltaY*this.speed*SCALE;
+      }
      //calling the angle math here adjusts character's movement even if mouse stops moving
      this.updateVectors();
   }
@@ -343,21 +401,21 @@ class Skeleton {
   }
   
   draw() {
-    let closestBox = Box.all[0];
-    function checkProximity(a,b) {
-      return Math.hypot(a.center-b.center,a.z-b.z);
-    }
+    // let closestBox = Box.all[0];
+    // function checkProximity(a,b) {
+    //   return Math.hypot(a.center-b.center,a.z-b.z);
+    // }
     Box.all.forEach(b => {
       collide(this, b)
-      let d = checkProximity(this,b)
-      let dPrev = checkProximity(this,closestBox)
-      if (d<dPrev) {closestBox = b}
+      // let d = checkProximity(this,b)
+      // let dPrev = checkProximity(this,closestBox)
+      // if (d<dPrev) {closestBox = b}
     });
-    gameCtx.beginPath();
-    gameCtx.moveTo(this.center, this.z);
-    gameCtx.lineTo(closestBox.center, closestBox.z);
-    gameCtx.stroke();
-    collide(this,closestBox);
+    // gameCtx.beginPath();
+    // gameCtx.moveTo(this.center, this.z);
+    // gameCtx.lineTo(closestBox.center, closestBox.z);
+    // gameCtx.stroke();
+    // collide(this,closestBox);
 
     this.animate();
     this.changeMoving();
@@ -451,11 +509,10 @@ function generateMap(e) {
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,x*40,y*40));
+        objects.push(new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
         break;
       default: 
         //transparent pixel
     }
   }
-  console.log(Box.all)
 }
