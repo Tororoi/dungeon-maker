@@ -379,16 +379,18 @@ class Skeleton {
   }
   
   draw() {
+    let closeBoxes = [];
     // let closestBox = Box.all[0];
-    // function checkProximity(a,b) {
-    //   return Math.hypot(a.center-b.center,a.z-b.z);
-    // }
+    function checkProximity(a,b) {
+      return Math.hypot(a.center-b.center,a.z-b.z);
+    }
     Box.all.forEach(b => {
-      collide(this, b)
-      // let d = checkProximity(this,b)
-      // let dPrev = checkProximity(this,closestBox)
-      // if (d<dPrev) {closestBox = b}
+      let d = checkProximity(this,b)
+      if (d<60) {closeBoxes.push(b)} else {b.color = "black";}
     });
+    closeBoxes.forEach(b => {
+      collide(this, b)
+    })
     // gameCtx.beginPath();
     // gameCtx.moveTo(this.center, this.z);
     // gameCtx.lineTo(closestBox.center, closestBox.z);
