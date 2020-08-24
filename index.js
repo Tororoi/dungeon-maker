@@ -76,7 +76,7 @@ function selectColor(e) {
 //---------------------------Running the game-----------------------------//
 
 //set scale of sprite
-let SCALE = 3;
+let SCALE = 2;
 
 //Game Canvas
 let gameCanvas = document.querySelector('.map');
@@ -88,48 +88,6 @@ let mouseY;
 //start with mouse outside of gameCanvas
 let mousePresent = false;
 
-// function collide(obj1,obj2) {
-//   // let collided = !(obj1.xMax<obj2.x || obj1.x>obj2.xMax || obj1.y>obj2.yMax || obj1.yMax<obj2.y);
-//   let insideW = !(obj1.xMax+Math.sign(obj1.xD)<obj2.xMin || obj1.xMin+Math.sign(obj1.xD)>obj2.xMax);
-//   let insideH = !(obj1.yMin+Math.sign(obj1.yD)>obj2.yMax || obj1.yMax+Math.sign(obj1.yD)<obj2.yMin);
-//   let outsideW = !(obj1.xMax-Math.sign(obj1.xD)<obj2.xMin || obj1.xMin-Math.sign(obj1.xD)>obj2.xMax);
-//   let outsideH = !(obj1.yMin-Math.sign(obj1.yD)>obj2.yMax || obj1.yMax-Math.sign(obj1.yD)<obj2.yMin);
-
-
-//   if (insideW&&insideH&&!outsideW) {
-//     obj1.unMoveX();
-//   }
-    
-//   if (insideW&&insideH&&!outsideH) {
-//     obj1.unMoveY();
-//   }
-
-//   switch(true) {
-//     case (insideW&&!insideH):
-//       obj1.collideX = false;
-//       obj1.collideY = false;
-//       obj2.color = "red";
-//       break;
-//     case (!insideW&&insideH):
-//       obj1.collideX = false;
-//       obj1.collideY = false;
-//       obj2.color = "blue";
-//       break;
-//     case (insideW&&insideH&&!outsideW):
-//       obj1.collideX = true;
-//       obj2.color = "#4d00c7";
-//       break;
-//     case (insideW&&insideH&&!outsideH):
-//       obj1.collideY = true;
-//       obj2.color = "#c700a1";
-//       break;
-//     default: 
-//       obj1.collideX = false;
-//       obj1.collideY = false;
-//       obj2.color = "black";
-//   }
-// }
-
 function collide(obj1,obj2) {
   let yOverlap = !!((obj1.yMin < obj2.yMax)&&(obj1.yMax > obj2.yMin));
   let xOverlap = !!((obj1.xMin < obj2.xMax)&&(obj1.xMax > obj2.xMin));
@@ -139,16 +97,36 @@ function collide(obj1,obj2) {
   let upOf2 = !!(obj1.z<obj2.z);
   let downOf2 = !!(obj1.z>obj2.z);
 
-  let checkEast = !!((obj1.xMax+SCALE*Math.sign(obj1.xD) >= obj2.xMin)&&yOverlap&&leftOf2);
-  let checkWest = !!((obj1.xMin+SCALE*Math.sign(obj1.xD) <= obj2.xMax)&&yOverlap&&rightOf2);
-  let checkSouth = !!((obj1.yMax+SCALE*Math.sign(obj1.yD) >= obj2.yMin)&&xOverlap&&upOf2);
-  let checkNorth = !!((obj1.yMin+SCALE*Math.sign(obj1.yD) <= obj2.yMax)&&xOverlap&&downOf2);
+  let checkEast = !!((obj1.xMax+Math.sign(obj1.xD) >= obj2.xMin)&&yOverlap&&leftOf2);
+  let checkWest = !!((obj1.xMin+Math.sign(obj1.xD) <= obj2.xMax)&&yOverlap&&rightOf2);
+  let checkSouth = !!((obj1.yMax+Math.sign(obj1.yD) >= obj2.yMin)&&xOverlap&&upOf2);
+  let checkNorth = !!((obj1.yMin+Math.sign(obj1.yD) <= obj2.yMax)&&xOverlap&&downOf2);
 
-  // if (xOverlap&&yOverlap) {
-  //   obj2.color = "red";
-  // } else {
-  //   obj2.color = "black";
-  // }
+  switch(true) {
+    case checkEast:
+      obj2.color = "#4d00c7";
+      break;
+    case checkWest:
+      obj2.color = "#4d00c7";
+      break;
+    case checkSouth:
+      obj2.color = "#b600c7";
+      break;
+    case checkNorth:
+      obj2.color = "#b600c7";
+      break;
+    case (xOverlap&&!yOverlap):
+      obj2.color = "red";
+      break;
+    case (!xOverlap&&yOverlap):
+      obj2.color = "blue";
+      break;
+    case (xOverlap&&yOverlap):
+      obj2.color = "#4d00c7";
+      break;
+    default: 
+      obj2.color = "black";
+  }
 
   if (checkEast||checkWest) {
     obj1.unMoveX();
