@@ -360,12 +360,12 @@ class Skeleton {
   
   drawFrame() {
     //Create collision circles to indicate when mouse is close enough to interact with clicking
-    // if (this.vector < this.width) {
-    //   gameCtx.beginPath();
-    //   gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
-    //   gameCtx.fillStyle = "rgb(129, 176, 72, 0.5)";
-    //   gameCtx.fill();
-    // }
+    if (this.vector < this.width) {
+      gameCtx.beginPath();
+      gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
+      gameCtx.fillStyle = "rgb(129, 176, 72, 0.5)";
+      gameCtx.fill();
+    }
     // if (this.vector < this.width/4) {
     //   gameCtx.beginPath();
     //   gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
@@ -380,7 +380,7 @@ class Skeleton {
   
   draw() {
     let closeBoxes = [];
-    // let closestBox = Box.all[0];
+
     function checkProximity(a,b) {
       return Math.hypot(a.center-b.center,a.z-b.z);
     }
