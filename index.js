@@ -210,9 +210,9 @@ class Skeleton {
   get height() {return this.rawHeight*SCALE;}
   get z() {return this.y+this.height}
   get center() {return this.x+this.width/2}
-  get xMax() {return this.x+this.width*0.65;}
+  get xMax() {return this.x+this.width*0.7;}
   get yMax() {return this.y+this.height;}
-  get xMin() {return this.x+this.width*0.35}
+  get xMin() {return this.x+this.width*0.3}
   get yMin() {return this.y+this.height*0.85;}
   get direction() {
     //switch row of spritesheet for proper direction
