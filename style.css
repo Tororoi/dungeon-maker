@@ -30,6 +30,13 @@
     margin: 9px;
 }
 
+.swatch-selected {
+    width: 24px;
+    height: 24px;
+    margin: 9px;
+    border: 2px solid blue;
+}
+
 .color p {
     align-self: center;
 }

@@ -71,6 +71,15 @@ palette.addEventListener('click', selectColor)
 
 function selectColor(e) {
   offScreenCTX.fillStyle = e.target.id;
+  palette.childNodes.forEach(c => {
+    if (c.childNodes[1]) {
+      if (c.childNodes[1].id === e.target.id) {
+        c.childNodes[1].className = "swatch-selected";
+      } else {
+        c.childNodes[1].className = "swatch";
+      }
+    } 
+  });
 }
 
 //---------------------------Running the game-----------------------------//
