@@ -125,8 +125,8 @@ function collide(obj1,obj2) {
 }
 
 class Wall {
-  constructor(spritesheet, width, height, x, y) {
-    this.spritesheet = spritesheet;
+  constructor(width, height, x, y) {
+    this.spritesheet = './images/walls_spritesheet.png';
     this.width = width;
     this.height = height;
     this.x = x;
@@ -148,12 +148,12 @@ class Wall {
     let down = !!(obj1.z<obj2.z);
     let up = !!(obj1.z>obj2.z);
 
-    if (right) {spriteMatrix[0] = 1;}
-    if (left) (spriteMatrix[1] = 1;)
-    if (down) {spriteMatrix[2] = 1;}
-    if (up) (spriteMatrix[3] = 1;)
+    if (right) {spriteMatrix[0] = 1}
+    if (left) (spriteMatrix[1] = 1)
+    if (down) {spriteMatrix[2] = 1}
+    if (up) (spriteMatrix[3] = 1)
 
-    
+
   }
 
   draw() {
@@ -162,8 +162,8 @@ class Wall {
 }
 
 class Skeleton {
-  constructor(spritesheet, rawWidth, rawHeight, speed, x, y) {
-    this.spritesheet = spritesheet;
+  constructor(rawWidth, rawHeight, speed, x, y) {
+    this.spritesheet = './images/skeleton_spritesheet.png';
     this.rawWidth = rawWidth;
     this.rawHeight = rawHeight;
     this.speed = speed;
@@ -408,7 +408,7 @@ class Skeleton {
 Skeleton.all = [];
 Wall.all = [];
 
-let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
+let s = new Skeleton(32,32,0.5,0,0)
 let wall = new Wall(32,32,170,175)
 
 //Listen for mouse movement
@@ -491,7 +491,7 @@ function generateMap(e) {
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton('./images/skeleton_spritesheet',32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
+        objects.push(new Skeleton(32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
         break;
       default: 
         //transparent pixel
