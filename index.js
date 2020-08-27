@@ -3,13 +3,14 @@
 let onScreenCVS = document.querySelector(".generator");
 let onScreenCTX = onScreenCVS.getContext("2d");
 
-//Create an offscreen canvas. This is where we will actually be drawing, in order to keep the image consistent and free of distortions.
+//Create an offscreen canvas. This is where we will actually be drawing, 
+//in order to keep the image consistent and free of distortions.
 let offScreenCVS = document.createElement('canvas');
 let offScreenCTX = offScreenCVS.getContext("2d");
-offScreenCTX.fillStyle = "red";
+
 //Set the dimensions of the drawing canvas
-  offScreenCVS.width = 16;
-  offScreenCVS.height = 10;
+offScreenCVS.width = 16;
+offScreenCVS.height = 10;
 
 //Create an Image with a default source of the existing onscreen canvas
 let img = new Image;
@@ -20,7 +21,8 @@ onScreenCVS.addEventListener('mousemove', handleMouseMove);
 onScreenCVS.addEventListener('mousedown', handleMouseDown);
 onScreenCVS.addEventListener('mouseup', handleMouseUp);
 
-//We only want the mouse to move if the mouse is down, so we need a variable to disable drawing while the mouse is not clicked.
+//We only want the mouse to move if the mouse is down, so we need a 
+//variable to disable drawing while the mouse is not clicked.
 let clicked = false;
 
 function handleMouseMove(e) {
@@ -40,7 +42,9 @@ function handleMouseUp() {
 
 //Helper functions
 
-//Draw a single pixel on the canvas. Get the ratio of the difference in size of the on and offscreen canvases to calculate where to draw on the offscreen canvas based on the coordinates of clicking on the onscreen canvas.
+//Draw a single pixel on the canvas. Get the ratio of the difference in 
+//size of the on and offscreen canvases to calculate where to draw on the 
+//offscreen canvas based on the coordinates of clicking on the onscreen canvas.
 function draw(e) {
     let ratio = onScreenCVS.width/offScreenCVS.width;
     if (offScreenCTX.fillStyle === "rgba(0, 0, 0, 0)") {
@@ -64,7 +68,7 @@ function renderImage() {
     img.src = source;
 }
 
-//-------------------------------ToolBox----------------------------------//
+//-------------------------------ToolWall----------------------------------//
 let palette = document.querySelector('.color-select');
 
 palette.addEventListener('click', selectColor)
@@ -111,32 +115,6 @@ function collide(obj1,obj2) {
   let checkSouth = !!((obj1.yMax+Math.sign(obj1.yD) >= obj2.yMin)&&xOverlap&&upOf2);
   let checkNorth = !!((obj1.yMin+Math.sign(obj1.yD) <= obj2.yMax)&&xOverlap&&downOf2);
 
-  switch(true) {
-    case checkEast:
-      obj2.color = "#4d00c7";
-      break;
-    case checkWest:
-      obj2.color = "#4d00c7";
-      break;
-    case checkSouth:
-      obj2.color = "#b600c7";
-      break;
-    case checkNorth:
-      obj2.color = "#b600c7";
-      break;
-    case (xOverlap&&!yOverlap):
-      obj2.color = "red";
-      break;
-    case (!xOverlap&&yOverlap):
-      obj2.color = "blue";
-      break;
-    case (xOverlap&&yOverlap):
-      obj2.color = "#4d00c7";
-      break;
-    default: 
-      obj2.color = "black";
-  }
-
   if (checkEast||checkWest) {
     obj1.unMoveX();
   }
@@ -146,14 +124,14 @@ function collide(obj1,obj2) {
   }
 }
 
-class Box {
-  constructor(width, height, x, y) {
+class Wall {
+  constructor(spritesheet, width, height, x, y) {
+    this.spritesheet = spritesheet;
     this.width = width;
     this.height = height;
     this.x = x;
     this.y = y;
-    this.color = "black";
-    Box.all.push(this);
+    Wall.all.push(this);
   }
   get z() {return this.y+this.height*0.75}
   get center() {return this.x+this.width/2}
@@ -162,12 +140,24 @@ class Box {
   get xMin() {return this.x;}
   get yMin() {return this.y;}
 
+  checkSprite(obj1, obj2) {    
+    let spriteMatrix = [0,0,0,0];
+
+    let right = !!(obj1.center<obj2.center);
+    let left = !!(obj1.center>obj2.center);
+    let down = !!(obj1.z<obj2.z);
+    let up = !!(obj1.z>obj2.z);
+
+    if (right) {spriteMatrix[0] = 1;}
+    if (left) (spriteMatrix[1] = 1;)
+    if (down) {spriteMatrix[2] = 1;}
+    if (up) (spriteMatrix[3] = 1;)
+
+    
+  }
+
   draw() {
-    gameCtx.fillStyle = this.color;
-    gameCtx.fillRect(this.x, this.y,this.width, this.height);
-    gameCtx.fillRect(this.x, this.y-this.height, this.width, this.height);
-    gameCtx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    gameCtx.fillRect(this.x, this.y-this.height, this.width, this.height);
+    
   }
 }
 
@@ -388,23 +378,26 @@ class Skeleton {
   }
   
   draw() {
-    let closeBoxes = [];
+    // let closeWalles = [];
 
-    function checkProximity(a,b) {
-      return Math.hypot(a.center-b.center,a.z-b.z);
-    }
-    Box.all.forEach(b => {
-      let d = checkProximity(this,b)
-      if (d<60) {closeBoxes.push(b)} else {b.color = "black";}
-    });
-    closeBoxes.forEach(b => {
-      collide(this, b)
-    })
+    // function checkProximity(a,b) {
+    //   return Math.hypot(a.center-b.center,a.z-b.z);
+    // }
+    // Wall.all.forEach(b => {
+    //   let d = checkProximity(this,b)
+    //   if (d<60) {closeWalles.push(b)} else {b.color = "black";}
+    // });
+    // closeWalles.forEach(b => {
+    //   collide(this, b);
+    // })
     // gameCtx.beginPath();
     // gameCtx.moveTo(this.center, this.z);
-    // gameCtx.lineTo(closestBox.center, closestBox.z);
+    // gameCtx.lineTo(closestWall.center, closestWall.z);
     // gameCtx.stroke();
-    // collide(this,closestBox);
+    // collide(this,closestWall);
+    Wall.all.forEach(b => {
+      collide(this, b);
+    })
 
     this.animate();
     this.changeMoving();
@@ -413,10 +406,10 @@ class Skeleton {
 }
 
 Skeleton.all = [];
-Box.all = [];
+Wall.all = [];
 
 let s = new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,0,0)
-let wall = new Box(32,32,170,175)
+let wall = new Wall(32,32,170,175)
 
 //Listen for mouse movement
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
@@ -486,7 +479,7 @@ function generateMap(e) {
   //reset objects on map
   objects = [];
   Skeleton.all = [];
-  Box.all = [];
+  Wall.all = [];
   //Iterate through pixels and make objects each time a color matches
   for (let i=0; i<imageData.data.length; i+=4) {
     let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
@@ -494,11 +487,11 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Box(40,40,x*40,y*40))
+        objects.push(new Wall(40,40,x*40,y*40))
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton('https://i.imgur.com/fkkH3uL.png',32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
+        objects.push(new Skeleton('./images/skeleton_spritesheet',32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
         break;
       default: 
         //transparent pixel
