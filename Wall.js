@@ -15,8 +15,9 @@ class Wall {
     }
     get width() {return this.rawWidth*SCALE;}
     get height() {return this.rawHeight*SCALE;}
-    get z() {return this.y+this.height*0.75}
-    get center() {return this.x+this.width/2}
+    get centerX() {return this.x+this.width/2;}
+    get centerY() {return this.y+this.height*0.75;}
+    get z() {return this.centerY;}
     get xMax() {return this.x+this.width;}
     get yMax() {return this.y+this.height;}
     get xMin() {return this.x;}
@@ -28,10 +29,10 @@ class Wall {
   
     updateMatrix(obj1, obj2) {   
       //spritesheet is organized in binary 
-      let right = !!(obj1.center<obj2.center);
-      let left = !!(obj1.center>obj2.center);
-      let down = !!(obj1.z<obj2.z);
-      let up = !!(obj1.z>obj2.z);
+      let right = !!(obj1.centerX<obj2.centerX);
+      let left = !!(obj1.centerX>obj2.centerX);
+      let down = !!(obj1.centerY<obj2.centerY);
+      let up = !!(obj1.centerY>obj2.centerY);
   
       if (right) {this.spriteMatrix[0] = 1}
       if (left) (this.spriteMatrix[1] = 1)
@@ -43,7 +44,7 @@ class Wall {
       let neighbors = [];
   
       function checkProximity(a,b) {
-        return Math.hypot(a.center-b.center,a.z-b.z);
+        return Math.hypot(a.centerX-b.centerX,a.centerY-b.centerY);
       }
       Wall.all.forEach(w => {
         let d = checkProximity(this,w)

@@ -44,8 +44,9 @@ class Skeleton {
     }
     get width() {return this.rawWidth*SCALE;}
     get height() {return this.rawHeight*SCALE;}
-    get z() {return this.y+this.height}
-    get center() {return this.x+this.width/2}
+    get centerX() {return this.x+this.width/2;}
+    get centerY() {return this.y+this.height;}
+    get z() {return this.centerY;}
     get xMax() {return this.x+this.width*0.7;}
     get yMax() {return this.y+this.height;}
     get xMin() {return this.x+this.width*0.3}
@@ -98,9 +99,9 @@ class Skeleton {
       this.vector = Math.hypot(this.xD,this.yD);
     }
 
-    function findPath(target) {
-        // let 
-      }
+    // function findPath(target) {
+    //     let 
+    // }
     
     move() {
       let deltaX = this.xD/this.vector
@@ -225,23 +226,6 @@ class Skeleton {
     }
     
     draw() {
-      // let closeWalles = [];
-  
-      // function checkProximity(a,b) {
-      //   return Math.hypot(a.center-b.center,a.z-b.z);
-      // }
-      // Wall.all.forEach(b => {
-      //   let d = checkProximity(this,b)
-      //   if (d<60) {closeWalles.push(b)} else {b.color = "black";}
-      // });
-      // closeWalles.forEach(b => {
-      //   collide(this, b);
-      // })
-      // gameCtx.beginPath();
-      // gameCtx.moveTo(this.center, this.z);
-      // gameCtx.lineTo(closestWall.center, closestWall.z);
-      // gameCtx.stroke();
-      // collide(this,closestWall);
       Wall.all.forEach(b => {
         collide(this, b);
       })

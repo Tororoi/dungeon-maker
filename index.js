@@ -110,10 +110,10 @@ function collide(obj1,obj2) {
   let yOverlap = !!((obj1.yMin < obj2.yMax)&&(obj1.yMax > obj2.yMin));
   let xOverlap = !!((obj1.xMin < obj2.xMax)&&(obj1.xMax > obj2.xMin));
   
-  let leftOf2 = !!(obj1.center<obj2.center);
-  let rightOf2 = !!(obj1.center>obj2.center);
-  let upOf2 = !!(obj1.z<obj2.z);
-  let downOf2 = !!(obj1.z>obj2.z);
+  let leftOf2 = !!(obj1.centerX<obj2.centerX);
+  let rightOf2 = !!(obj1.centerX>obj2.centerX);
+  let upOf2 = !!(obj1.centerY<obj2.centerY);
+  let downOf2 = !!(obj1.centerY>obj2.centerY);
 
   let checkEast = !!((obj1.xMax+Math.sign(obj1.xD) >= obj2.xMin)&&yOverlap&&leftOf2);
   let checkWest = !!((obj1.xMin+Math.sign(obj1.xD) <= obj2.xMax)&&yOverlap&&rightOf2);
@@ -165,7 +165,7 @@ function compareZAxis(obj1,obj2) {
     if (obj1.z > obj2.z) {
         return 1;
     } else if (obj1.z === obj2.z) {
-        if (obj1.center <= obj2.center) {
+        if (obj1.centerX <= obj2.centerX) {
             return 1;
         } else {
             return -1;
