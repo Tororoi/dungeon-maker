@@ -149,8 +149,8 @@ class Wall {
   get yMin() {return this.y;}
   //Convert the matrix to a binary string and convert it to an integer
   get spriteCode() {return parseInt(this.spriteMatrix.join(""), 2);}
-  get spriteX(n) {return n % 4;}
-  get spriteY(n) {return Math.floor(n/4);}
+  get spriteX() {return this.spriteCode % 4;}
+  get spriteY() {return Math.floor(this.spriteCode/4);}
 
   updateMatrix(obj1, obj2) {   
     //spritesheet is organized in binary 
@@ -182,7 +182,7 @@ class Wall {
 
   draw() {
     gameCtx.drawImage(this.img,
-      this.spriteX(this.spriteCode) * this.rawWidth, this.spriteY(this.spriteCode) * this.rawHeight, this.rawWidth, this.rawHeight,
+      this.spriteX * this.rawWidth, this.spriteY * this.rawHeight, this.rawWidth, this.rawHeight,
       this.x, this.y, this.width, this.height);
   }
 }
