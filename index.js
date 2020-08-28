@@ -173,7 +173,7 @@ class Wall {
     }
     Wall.all.forEach(w => {
       let d = checkProximity(this,w)
-      if (d<this.width+4) {neighbors.push(w)}
+      if (d<this.width+1) {neighbors.push(w)}
     });
     neighbors.forEach(w => {
       this.updateMatrix(this, w);
@@ -182,8 +182,8 @@ class Wall {
 
   draw() {
     gameCtx.drawImage(this.img,
-      this.spriteX * this.rawWidth, this.spriteY * this.rawHeight, this.rawWidth, this.rawHeight,
-      this.x, this.y, this.width, this.height);
+      this.spriteX * this.rawWidth, this.spriteY * this.rawHeight * 2, this.rawWidth, this.rawHeight * 2,
+      this.x, this.y-this.height, this.width, this.height * 2);
   }
 }
 
@@ -435,7 +435,7 @@ Skeleton.all = [];
 Wall.all = [];
 
 let s = new Skeleton(32,32,0.5,0,0)
-let wall = new Wall(32,32,170,175)
+let wall = new Wall(16,16,170,175)
 
 //Listen for mouse movement
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
@@ -513,11 +513,11 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Wall(40,40,x*40,y*40))
+        objects.push(new Wall(16,16,x*32,y*32))
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton(32,32,0.5,x*40-SCALE*16+20,y*40-SCALE*32+20));
+        objects.push(new Skeleton(32,32,0.5,x*32-SCALE*16+16,y*32-SCALE*32+16));
         break;
       default: 
         //transparent pixel
