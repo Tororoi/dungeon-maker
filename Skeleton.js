@@ -50,6 +50,7 @@ class Skeleton {
     get yMax() {return this.y+this.height;}
     get xMin() {return this.x+this.width*0.3}
     get yMin() {return this.y+this.height*0.85;}
+
     get direction() {
       //switch row of spritesheet for proper direction
       switch (true) {
@@ -83,14 +84,23 @@ class Skeleton {
             return this.southeast;
       }
     }
+
+    get target() {
+        return [mouseX, mouseY]
+    }
+
     updateVectors() {
       //base movement off of offset character coordinates to center of head of character
-      this.xD = mouseX - (this.x+(this.width/2));
-      this.yD = mouseY - (this.y+(this.height/8));
+      this.xD = this.target[0] - (this.x+(this.width/2));
+      this.yD = this.target[1] - (this.y+(this.height/8));
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
     }
+
+    function findPath(target) {
+        // let 
+      }
     
     move() {
       let deltaX = this.xD/this.vector

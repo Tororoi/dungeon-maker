@@ -70,7 +70,7 @@ function renderImage() {
     img.src = source;
 }
 
-//-------------------------------ToolWall----------------------------------//
+//-------------------------------ToolBox----------------------------------//
 let palette = document.querySelector('.color-select');
 
 palette.addEventListener('click', selectColor)
@@ -87,6 +87,9 @@ function selectColor(e) {
     } 
   });
 }
+
+//----------------------------Pathfinding---------------------------------//
+
 
 //---------------------------Running the game-----------------------------//
 
@@ -128,6 +131,7 @@ function collide(obj1,obj2) {
 
 Skeleton.all = [];
 Wall.all = [];
+Floor.all = [];
 
 let s = new Skeleton(32,32,0.5,0,0)
 let wall = new Wall(16,16,170,175)
@@ -201,6 +205,7 @@ function generateMap(e) {
   objects = [];
   Skeleton.all = [];
   Wall.all = [];
+  Floor.all = [];
   //Iterate through pixels and make objects each time a color matches
   for (let i=0; i<imageData.data.length; i+=4) {
     let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
@@ -216,6 +221,7 @@ function generateMap(e) {
         break;
       default: 
         //transparent pixel
+        objects.push(new Floor(16,16,x*32,y*32))
     }
   }
   //Set the sprite for each wall upon generation.
