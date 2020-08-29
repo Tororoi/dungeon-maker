@@ -35,6 +35,8 @@ class Skeleton {
       //set initial framecount
       this.frameCount = 0;
       this.frameLimit = 4;
+      this.currentTile = [x*32,y*32];
+      this.previousTile = [x*32,y*32];
       Skeleton.all.push(this);
     }
     get img() {
@@ -86,22 +88,79 @@ class Skeleton {
       }
     }
 
-    get target() {
-        return [mouseX, mouseY]
-    }
+    get target() {return [mouseX, mouseY];}
 
     updateVectors() {
       //base movement off of offset character coordinates to center of head of character
-      this.xD = this.target[0] - (this.x+(this.width/2));
-      this.yD = this.target[1] - (this.y+(this.height/8));
+      this.xD = this.target[0] - (this.centerX);
+      this.yD = this.target[1] - (this.centerY);
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
     }
 
-    // function findPath(target) {
-    //     let 
-    // }
+    findPath() {
+        //A* pathfinding algorithm
+        //Make the 2D array to hold all objects
+        let gameGrid = [];
+        for (let i=0; i<offScreenCVS.height; i++) {
+            gameGrid[i] = [];
+            for (let j=0; j<offScreenCVS.width; j++) {
+            gameGrid[i][j] = {type: "free", x: j, y: i, gCost: 0, hCost: 0, fCost: 0}
+            }
+        }
+        //Start
+        let gridX = Math.floor(this.centerX/32);
+        let gridY = Math.floor(this.centerY/32);
+        let start = gameGrid[gridY][gridX];
+        //Goal
+        let goalX = Math.floor(target[0]/32);
+        let goalY = Math.floor(target[1]/32);
+        let goal = gameGrid[goalY][goalX];
+        //Set current Tile
+        if (this.currentTile != start) {
+            this.previousTile = this.currentTile;
+            this.currentTile = start;
+        }
+        //Priority queue
+        let open = [start];
+        //empty set
+        let closed = [];
+        while (open[0] != goal) {
+            let current = open.shift(open[0]);
+            closed.push(current);
+            //Eight neighbors
+            let e = gameGrid[current.y][current.x+1];
+            let se = gameGrid[current.y+1][current.x+1];
+            let s = gameGrid[current.y+1][current.x];
+            let sw = gameGrid[current.y+1][current.x-1];
+            let w = gameGrid[current.y][current.x-1];
+            let nw = gameGrid[current.y-1][current.x-1];
+            let n = gameGrid[current.y-1][current.x];
+            let ne = gameGrid[current.y-1][current.x+1];
+            let neighbors = [];
+            neighbors.push(e,se,s,sw,w,nw,n,ne);
+            //calculate cost
+            function getDistance(x1,y1,x2,y2) {
+                return Math.hypot(x1-x2,y1-y2);
+            }
+            // neighbors.forEach(n => {
+            //     n.gCost = getDistance(n.x,n.y,current.x,current.y);
+            //     n.hCost = getDistance(n.x,n.y,goal.x,goal.y);
+            //     n.fCost = n.gCost+n.hCost;
+            // })
+            let lowestCost = getDistance(current.x,current.y,goal.x,goal.y)
+            for (let i=0; i<neighbors.length; i++) {
+                neighbors[i].gCost = getDistance(neighbors[i].x,neighbors[i].y,current.x,current.y);
+                neighbors[i].hCost = getDistance(neighbors[i].x,neighbors[i].y,goal.x,goal.y);
+                neighbors[i].fCost = neighbors[i].gCost+neighbors[i].hCost;
+                if (neighbors[i])
+            }
+        }
+
+
+
+    }
     
     move() {
       let deltaX = this.xD/this.vector
@@ -119,6 +178,7 @@ class Skeleton {
       // }
        //calling the angle math here adjusts character's movement even if mouse stops moving
        this.updateVectors();
+    //    this.findPath();
     }
   
     unMoveX() {

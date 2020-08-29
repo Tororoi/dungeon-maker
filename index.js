@@ -131,7 +131,6 @@ function collide(obj1,obj2) {
 
 Skeleton.all = [];
 Wall.all = [];
-Floor.all = [];
 
 let s = new Skeleton(32,32,0.5,0,0)
 let wall = new Wall(16,16,170,175)
@@ -181,10 +180,14 @@ function drawObjects(array) {
     }
 }
 
-let objects = [s,wall];
+let objects = [];
 
 function drawLoop() {
     gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+    //Draw Cursor
+    gameCtx.fillStyle = "red";
+    gameCtx.fillRect(Math.floor(mouseX/32)*32,Math.floor(mouseY/32)*32,32,32);
 
     objects.sort(compareZAxis);
     drawObjects(objects);
@@ -199,13 +202,15 @@ let generateBtn = document.querySelector(".generate-btn")
 
 generateBtn.addEventListener("click", generateMap);
 
+//Define the empty 2D Array
+let gameGrid = [];
+
 function generateMap(e) {
   let imageData = offScreenCTX.getImageData(0,0,offScreenCVS.width,offScreenCVS.height);
   //reset objects on map
   objects = [];
   Skeleton.all = [];
   Wall.all = [];
-  Floor.all = [];
   //Iterate through pixels and make objects each time a color matches
   for (let i=0; i<imageData.data.length; i+=4) {
     let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
@@ -213,7 +218,7 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Wall(16,16,x*32,y*32))
+        objects.push(new Wall(16,16,x*32,y*32));
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
@@ -221,7 +226,6 @@ function generateMap(e) {
         break;
       default: 
         //transparent pixel
-        objects.push(new Floor(16,16,x*32,y*32))
     }
   }
   //Set the sprite for each wall upon generation.
