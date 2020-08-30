@@ -88,7 +88,13 @@ class Skeleton {
       }
     }
 
-    get target() {return [mouseX, mouseY];}
+    get target() {
+        if (!!mouseX) {
+            return [mouseX, mouseY];
+        } else {
+            return [32,32];
+        }
+    }
 
     updateVectors() {
       //base movement off of offset character coordinates to center of head of character
@@ -106,7 +112,12 @@ class Skeleton {
         for (let i=0; i<offScreenCVS.height; i++) {
             gameGrid[i] = [];
             for (let j=0; j<offScreenCVS.width; j++) {
-            gameGrid[i][j] = {type: "free", x: j, y: i, gCost: 0, hCost: 0, fCost: 0}
+                let checkWalls = w => w.gridX===j&&w.gridY===i;
+                if (Wall.all.some(checkWalls)) {
+                    gameGrid[i][j] = {parent: null, type: "wall", x: j, y: i, gCost: 0, hCost: 0, fCost: 0, open: false, closed: false}
+                } else {
+                    gameGrid[i][j] = {parent: null, type: "free", x: j, y: i, gCost: 0, hCost: 0, fCost: 0, open: false, closed: false}
+                }
             }
         }
         //Start
@@ -114,20 +125,56 @@ class Skeleton {
         let gridY = Math.floor(this.centerY/32);
         let start = gameGrid[gridY][gridX];
         //Goal
-        let goalX = Math.floor(target[0]/32);
-        let goalY = Math.floor(target[1]/32);
+        let goalX = Math.floor(this.target[0]/32);
+        let goalY = Math.floor(this.target[1]/32);
         let goal = gameGrid[goalY][goalX];
         //Set current Tile
         if (this.currentTile != start) {
             this.previousTile = this.currentTile;
             this.currentTile = start;
         }
+        //Search
+        //calculate cost
+        function getDistance(x1,y1,x2,y2) {
+            return Math.hypot(x1-x2,y1-y2);
+        }
         //Priority queue
         let open = [start];
+        start.open = true;
+        start.gCost = 0;
+        start.hCost = getDistance(start.x,start.y,goal.x,goal.y);
+        start.fCost = start.gCost+start.hCost;
         //empty set
         let closed = [];
-        while (open[0] != goal) {
-            let current = open.shift(open[0]);
+        while (open.length>0) {
+            //Grab open Node with lowest fCost to process next
+            function compareFCost(obj1,obj2) {
+                if (obj1.fCost > obj2.fCost) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            }   
+            open.sort(compareFCost)
+            //End case
+            if (open[0] === goal) {
+                let curr = open[0];
+                let ret = [];
+                let n = 0;
+                // while(curr.parent&&n<30) {
+                //     ret.push(curr);
+                //     curr = curr.parent;
+                //     n+=1;
+                // }
+                console.log(gameGrid);
+                // setTimeout(function(){ alert("Hello"); }, 1000000);
+                // console.log(ret.reverse())
+                return ret.reverse();
+            }
+            //Remove lowest fCost from open and add it to closed
+            open[0].open = false;
+            let current = open.shift();
+            current.closed = true;
             closed.push(current);
             //Eight neighbors
             let e = gameGrid[current.y][current.x+1];
@@ -139,27 +186,41 @@ class Skeleton {
             let n = gameGrid[current.y-1][current.x];
             let ne = gameGrid[current.y-1][current.x+1];
             let neighbors = [];
-            neighbors.push(e,se,s,sw,w,nw,n,ne);
-            //calculate cost
-            function getDistance(x1,y1,x2,y2) {
-                return Math.hypot(x1-x2,y1-y2);
-            }
+            neighbors.push(current,e,se,s,sw,w,nw,n,ne);
+
             // neighbors.forEach(n => {
             //     n.gCost = getDistance(n.x,n.y,current.x,current.y);
             //     n.hCost = getDistance(n.x,n.y,goal.x,goal.y);
             //     n.fCost = n.gCost+n.hCost;
             // })
-            let lowestCost = getDistance(current.x,current.y,goal.x,goal.y)
-            for (let i=0; i<neighbors.length; i++) {
-                neighbors[i].gCost = getDistance(neighbors[i].x,neighbors[i].y,current.x,current.y);
-                neighbors[i].hCost = getDistance(neighbors[i].x,neighbors[i].y,goal.x,goal.y);
-                neighbors[i].fCost = neighbors[i].gCost+neighbors[i].hCost;
-                if (neighbors[i])
+            let cost = current.gCost+1;
+            for (let i=1; i<neighbors.length; i++) {
+                let neighbor = neighbors[i];
+                if (neighbor.type != "free") {
+                    continue;
+                }
+                neighbor.gCost = getDistance(neighbor.x,neighbor.y,start.x,start.y);
+                neighbor.hCost = getDistance(neighbor.x,neighbor.y,goal.x,goal.y);
+                // if (neighbor != start) {neighbor.parent = current;}
+                neighbor.fCost = neighbor.gCost+neighbor.hCost;
+
+                // if (neighbor.open&&neighbor.gCost > cost) {
+                //     neighbor.open = false;
+                //     open.splice(open.indexOf(neighbor),1);
+                // }
+                if (!(neighbor.open&&neighbor.closed)) {
+                    neighbor.parent = current;
+                    cost = neighbor.gCost;
+                    neighbors[i].open = true;
+                    open.push(neighbor);
+                }
+                // if (neighbor.closed&&neighbor.gCost < cost) {
+                //     neighbor.closed = false;
+                //     open.splice(open.indexOf(neighbor),1);
+                // }
             }
         }
-
-
-
+        console.log("NO!")
     }
     
     move() {
@@ -286,6 +347,7 @@ class Skeleton {
     }
     
     draw() {
+      this.findPath();
       Wall.all.forEach(b => {
         collide(this, b);
       })

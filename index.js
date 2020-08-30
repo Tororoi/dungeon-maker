@@ -218,7 +218,7 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Wall(16,16,x*32,y*32));
+        objects.push(new Wall(16,16,x*32,y*32,x,y));
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel

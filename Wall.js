@@ -1,10 +1,12 @@
 class Wall {
-    constructor(rawWidth, rawHeight, x, y) {
+    constructor(rawWidth, rawHeight, x, y, gridX, gridY) {
       this.spritesheet = './images/walls_spritesheet.png';
       this.rawWidth = rawWidth;
       this.rawHeight = rawHeight;
       this.x = x;
       this.y = y;
+      this.gridX = gridX;
+      this.gridY = gridY;
       this.spriteMatrix = [0,0,0,0];
       Wall.all.push(this);
     }
@@ -22,6 +24,7 @@ class Wall {
     get yMax() {return this.y+this.height;}
     get xMin() {return this.x;}
     get yMin() {return this.y;}
+
     //Convert the matrix to a binary string and convert it to an integer
     get spriteCode() {return parseInt(this.spriteMatrix.join(""), 2);}
     get spriteX() {return this.spriteCode % 4;}
