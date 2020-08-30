@@ -37,6 +37,7 @@ class Skeleton {
       this.frameLimit = 4;
       this.currentTile = [x*32,y*32];
       this.previousTile = [x*32,y*32];
+      this.pathTarget = [32,32];
       Skeleton.all.push(this);
     }
     get img() {
@@ -98,8 +99,8 @@ class Skeleton {
 
     updateVectors() {
       //base movement off of offset character coordinates to center of head of character
-      this.xD = this.target[0] - (this.centerX);
-      this.yD = this.target[1] - (this.centerY);
+      this.xD = this.pathTarget[0] - (this.centerX);
+      this.yD = this.pathTarget[1] - (this.centerY);
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
@@ -114,9 +115,9 @@ class Skeleton {
             for (let j=0; j<offScreenCVS.width; j++) {
                 let checkWalls = w => w.gridX===j&&w.gridY===i;
                 if (Wall.all.some(checkWalls)) {
-                    gameGrid[i][j] = {parent: null, type: "wall", x: j, y: i, gCost: 0, hCost: 0, fCost: 0, open: false, closed: false}
+                    gameGrid[i][j] = {parent: null, type: "wall", x: j, y: i, gCost: 0, hCost: 0, fCost: 0}
                 } else {
-                    gameGrid[i][j] = {parent: null, type: "free", x: j, y: i, gCost: 0, hCost: 0, fCost: 0, open: false, closed: false}
+                    gameGrid[i][j] = {parent: null, type: "free", x: j, y: i, gCost: 0, hCost: 0, fCost: 0}
                 }
             }
         }
@@ -139,14 +140,18 @@ class Skeleton {
             return Math.hypot(x1-x2,y1-y2);
         }
         //Priority queue
-        let open = [start];
-        start.open = true;
+        let open = new Set();
+        open.add(start);
         start.gCost = 0;
         start.hCost = getDistance(start.x,start.y,goal.x,goal.y);
         start.fCost = start.gCost+start.hCost;
         //empty set
-        let closed = [];
-        while (open.length>0) {
+        let closed = new Set();
+        let stop = 0
+        while (open.size>0&&stop<30) {
+            stop+=1;
+            console.log(stop,open)
+            //Get lowest fCost for processing
             //Grab open Node with lowest fCost to process next
             function compareFCost(obj1,obj2) {
                 if (obj1.fCost > obj2.fCost) {
@@ -154,73 +159,104 @@ class Skeleton {
                 } else {
                     return -1;
                 }
-            }   
-            open.sort(compareFCost)
-            //End case
-            if (open[0] === goal) {
-                let curr = open[0];
-                let ret = [];
-                let n = 0;
-                // while(curr.parent&&n<30) {
-                //     ret.push(curr);
-                //     curr = curr.parent;
-                //     n+=1;
-                // }
-                console.log(gameGrid);
-                // setTimeout(function(){ alert("Hello"); }, 1000000);
-                // console.log(ret.reverse())
-                return ret.reverse();
-            }
-            //Remove lowest fCost from open and add it to closed
-            open[0].open = false;
-            let current = open.shift();
-            current.closed = true;
-            closed.push(current);
-            //Eight neighbors
-            let e = gameGrid[current.y][current.x+1];
-            let se = gameGrid[current.y+1][current.x+1];
-            let s = gameGrid[current.y+1][current.x];
-            let sw = gameGrid[current.y+1][current.x-1];
-            let w = gameGrid[current.y][current.x-1];
-            let nw = gameGrid[current.y-1][current.x-1];
-            let n = gameGrid[current.y-1][current.x];
-            let ne = gameGrid[current.y-1][current.x+1];
-            let neighbors = [];
-            neighbors.push(current,e,se,s,sw,w,nw,n,ne);
+            } 
 
-            // neighbors.forEach(n => {
-            //     n.gCost = getDistance(n.x,n.y,current.x,current.y);
-            //     n.hCost = getDistance(n.x,n.y,goal.x,goal.y);
-            //     n.fCost = n.gCost+n.hCost;
-            // })
-            let cost = current.gCost+1;
-            for (let i=1; i<neighbors.length; i++) {
+            let openArr = Array.from(open);
+            openArr.sort(compareFCost)
+            open.forEach(n => {
+                gameCtx.fillStyle = "green";
+                gameCtx.fillRect(n.x*32,n.y*32,32,32);
+            });
+            let current = openArr[0];
+            gameCtx.fillStyle = "purple";
+            gameCtx.fillRect(current.x*32,current.y*32,32,32);
+            closed.forEach(n => {
+                gameCtx.fillStyle = "blue";
+                gameCtx.fillRect(n.x*32,n.y*32,32,32);
+            })
+            console.log("current",current)
+            //Remove lowest fCost from open and add it to closed
+            open.delete(current);
+            closed.add(current);
+            //End case
+            if (current === goal) {
+                let curr = current;
+                let path = [];
+                let n = 0;
+                while(curr.parent&&n<30) {
+                    path.push(curr);
+                    curr = curr.parent;
+                    n+=1;
+                }
+                console.log("yay!", path)
+                return path.reverse();
+                // setTimeout(function(){ alert("Hello"); }, 1000000);
+                // console.log(path.reverse())
+                // return path.reverse();
+            }
+            //Eight neighbors
+            let neighbors = [];
+            if (gameGrid[current.y][current.x+1]) {
+                //east
+                neighbors.push(gameGrid[current.y][current.x+1]);
+            }
+            if (gameGrid[current.y][current.x-1]) {
+                //west
+                neighbors.push(gameGrid[current.y][current.x-1]);
+            }
+            if (gameGrid[current.y+1]) {
+                //south
+                neighbors.push(gameGrid[current.y+1][current.x]);
+                if (gameGrid[current.y+1][current.x-1]) {
+                    //southwest
+                    neighbors.push(gameGrid[current.y+1][current.x-1]);
+                }
+                if (gameGrid[current.y+1][current.x+1]) {
+                    //southeast
+                    neighbors.push(gameGrid[current.y+1][current.x+1]);
+                }
+            }
+            if (gameGrid[current.y-1]) {
+                //north
+                neighbors.push(gameGrid[current.y-1][current.x]);
+                if (gameGrid[current.y-1][current.x-1]) {
+                    //northwest
+                    neighbors.push(gameGrid[current.y-1][current.x-1]);
+                }
+                if (gameGrid[current.y-1][current.x+1]) {
+                    //northeast
+                    neighbors.push(gameGrid[current.y-1][current.x+1]);
+                }
+            }
+
+            let cost = current.hCost;
+
+            for (let i=0; i<neighbors.length; i++) {
                 let neighbor = neighbors[i];
-                if (neighbor.type != "free") {
+                if (neighbor.type != "free"||closed.has(neighbor)) {
                     continue;
                 }
                 neighbor.gCost = getDistance(neighbor.x,neighbor.y,start.x,start.y);
                 neighbor.hCost = getDistance(neighbor.x,neighbor.y,goal.x,goal.y);
-                // if (neighbor != start) {neighbor.parent = current;}
                 neighbor.fCost = neighbor.gCost+neighbor.hCost;
-
-                // if (neighbor.open&&neighbor.gCost > cost) {
-                //     neighbor.open = false;
-                //     open.splice(open.indexOf(neighbor),1);
-                // }
-                if (!(neighbor.open&&neighbor.closed)) {
-                    neighbor.parent = current;
-                    cost = neighbor.gCost;
-                    neighbors[i].open = true;
-                    open.push(neighbor);
+                if (open.has(neighbor)&&neighbor.hCost > cost) {
+                    open.delete(neighbor);
+                    closed.add(neighbor);
                 }
-                // if (neighbor.closed&&neighbor.gCost < cost) {
-                //     neighbor.closed = false;
-                //     open.splice(open.indexOf(neighbor),1);
-                // }
+                if (open.has(neighbor)&&neighbor.hCost < cost) {
+                    open.delete(neighbor);
+                }
+                if (closed.has(neighbor)&&neighbor.hCost < cost) {
+                    closed.delete(neighbor);
+                }
+                if (!(open.has(neighbor)&&closed.has(neighbor))) {
+                    if (!neighbor.parent&&neighbor!=start) {neighbor.parent = current;}
+                    cost = neighbor.hCost;
+                    open.add(neighbor);
+                }
             }
         }
-        console.log("NO!")
+        load();
     }
     
     move() {
@@ -318,7 +354,7 @@ class Skeleton {
       //character stops when touching mouse
       switch(true) {
         case (this.vector <= this.width/4 || !mousePresent || this.deathState):
-          this.moving = false;
+        //   this.moving = false;
           break;
         case (this.vector > this.width/4 && mousePresent):
           this.moving = true;
@@ -347,7 +383,14 @@ class Skeleton {
     }
     
     draw() {
-      this.findPath();
+      let path = this.findPath()
+      path.forEach(n => {
+          gameCtx.fillStyle = "orange";
+          gameCtx.fillRect(n.x*32,n.y*32,32,32);
+      });
+      gameCtx.fillStyle = "yellow";
+      gameCtx.fillRect(path[0].x*32,path[0].y*32,32,32);
+      this.pathTarget = [path[0].x*32+16,path[0].y*32+16]
       Wall.all.forEach(b => {
         collide(this, b);
       })
