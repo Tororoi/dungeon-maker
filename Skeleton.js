@@ -11,6 +11,10 @@ class Skeleton {
       this.yD = 0;
       this.angle = 0;
       this.vector = 1;
+      this.pathXD = 0;
+      this.pathYD = 0;
+      this.pathAngle = 0;
+      this.pathVector = 1;
       //collisions
       this.collideX = false;
       this.collideY = false;
@@ -99,11 +103,17 @@ class Skeleton {
 
     updateVectors() {
       //base movement off of offset character coordinates to center of head of character
-      this.xD = this.pathTarget[0] - (this.centerX);
-      this.yD = this.pathTarget[1] - (this.centerY);
+      this.xD = this.target[0] - (this.centerX);
+      this.yD = this.target[1] - (this.centerY);
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
+      //base movement off of offset character coordinates to center of head of character
+      this.pathXD = this.pathTarget[0] - (this.centerX);
+      this.pathYD = this.pathTarget[1] - (this.centerY);
+      //get the angle of the mouse relative to the character
+      this.pathAngle = Math.atan2(this.pathYD, this.pathXD)*180/Math.PI;
+      this.pathVector = Math.hypot(this.pathXD,this.pathYD);
     }
 
     findPath() {
@@ -128,6 +138,12 @@ class Skeleton {
         //Goal
         let goalX = Math.floor(this.target[0]/32);
         let goalY = Math.floor(this.target[1]/32);
+        //Account for edge of canvas
+        if (goalY<0) {goalY = 0};
+        if (goalY>9) {goalY = 9};
+        if (goalX<0) {goalX = 0};
+        if (goalX>15) {goalX = 15};
+        
         let goal = gameGrid[goalY][goalX];
         //Set current Tile
         if (this.currentTile != start) {
@@ -148,9 +164,9 @@ class Skeleton {
         //empty set
         let closed = new Set();
         let stop = 0
-        while (open.size>0&&stop<30) {
+        while (open.size>0&&stop<100) {
             stop+=1;
-            console.log(stop,open)
+            // console.log(stop,open)
             //Get lowest fCost for processing
             //Grab open Node with lowest fCost to process next
             function compareFCost(obj1,obj2) {
@@ -174,7 +190,7 @@ class Skeleton {
                 gameCtx.fillStyle = "blue";
                 gameCtx.fillRect(n.x*32,n.y*32,32,32);
             })
-            console.log("current",current)
+            // console.log("current",current)
             //Remove lowest fCost from open and add it to closed
             open.delete(current);
             closed.add(current);
@@ -188,7 +204,7 @@ class Skeleton {
                     curr = curr.parent;
                     n+=1;
                 }
-                console.log("yay!", path)
+                // console.log("yay!", path)
                 return path.reverse();
                 // setTimeout(function(){ alert("Hello"); }, 1000000);
                 // console.log(path.reverse())
@@ -260,9 +276,10 @@ class Skeleton {
     }
     
     move() {
-      let deltaX = this.xD/this.vector
-      let deltaY = this.yD/this.vector
+      let deltaX = this.pathXD/this.pathVector
+      let deltaY = this.pathYD/this.pathVector
       //movement
+      console.log(deltaX,deltaY)
       // if (!this.collideX) {
         if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
             this.x += deltaX*this.speed*SCALE;
@@ -279,7 +296,7 @@ class Skeleton {
     }
   
     unMoveX() {
-      let deltaX = this.xD/this.vector
+      let deltaX = this.pathXD/this.pathVector
       //movement
         if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
             this.x -= deltaX*this.speed*SCALE;
@@ -289,7 +306,7 @@ class Skeleton {
     }
   
     unMoveY() {
-      let deltaY = this.yD/this.vector
+      let deltaY = this.pathYD/this.pathVector
       //movement
         if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= gameCanvas.height) {
             this.y -= deltaY*this.speed*SCALE;
@@ -353,10 +370,10 @@ class Skeleton {
     changeMoving() {
       //character stops when touching mouse
       switch(true) {
-        case (this.vector <= this.width/4 || !mousePresent || this.deathState):
-        //   this.moving = false;
+        case (this.pathVector <= this.width/4 || !mousePresent || this.deathState):
+          this.moving = false;
           break;
-        case (this.vector > this.width/4 && mousePresent):
+        case (this.pathVector > this.width/4 && mousePresent):
           this.moving = true;
           break;
       }
@@ -388,9 +405,11 @@ class Skeleton {
           gameCtx.fillStyle = "orange";
           gameCtx.fillRect(n.x*32,n.y*32,32,32);
       });
-      gameCtx.fillStyle = "yellow";
-      gameCtx.fillRect(path[0].x*32,path[0].y*32,32,32);
-      this.pathTarget = [path[0].x*32+16,path[0].y*32+16]
+      if (path[0]) {
+        gameCtx.fillStyle = "yellow";
+        gameCtx.fillRect(path[0].x*32,path[0].y*32,32,32);
+        this.pathTarget = [path[0].x*32+16,path[0].y*32+16]
+      }
       Wall.all.forEach(b => {
         collide(this, b);
       })
