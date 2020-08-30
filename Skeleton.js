@@ -64,28 +64,28 @@ class Skeleton {
       switch (true) {
         case (this.deathState):
             return this.death;
-        case (this.angle <= 22.5 && this.angle > -22.5):
+        case (this.pathAngle <= 22.5 && this.pathAngle > -22.5):
             //east
             return this.east;
-        case (this.angle <= 67.5 && this.angle > 22.5):
+        case (this.pathAngle <= 67.5 && this.pathAngle > 22.5):
             //southeast
             return this.southeast;
-        case (this.angle <= 112.5 && this.angle > 67.5): 
+        case (this.pathAngle <= 112.5 && this.pathAngle > 67.5): 
             //south
             return this.south;
-        case (this.angle <= 157.5 && this.angle > 112.5):
+        case (this.pathAngle <= 157.5 && this.pathAngle > 112.5):
             //southwest
             return this.southwest;
-        case (this.angle <= -157.5 || this.angle > 157.5):
+        case (this.pathAngle <= -157.5 || this.pathAngle > 157.5):
             //west
             return this.west;
-        case (this.angle <= -112.5 && this.angle > -157.5):
+        case (this.pathAngle <= -112.5 && this.pathAngle > -157.5):
             //northwest
             return this.northwest;
-        case (this.angle <= -67.5 && this.angle > -112.5):
+        case (this.pathAngle <= -67.5 && this.pathAngle > -112.5):
             //north
             return this.north;
-        case (this.angle <= -22.5 && this.angle > -67.5):
+        case (this.pathAngle <= -22.5 && this.pathAngle > -67.5):
             //northeast
             return this.northeast;
         default:
@@ -143,7 +143,7 @@ class Skeleton {
         if (goalY>9) {goalY = 9};
         if (goalX<0) {goalX = 0};
         if (goalX>15) {goalX = 15};
-        
+
         let goal = gameGrid[goalY][goalX];
         //Set current Tile
         if (this.currentTile != start) {
@@ -272,14 +272,12 @@ class Skeleton {
                 }
             }
         }
-        load();
     }
     
     move() {
       let deltaX = this.pathXD/this.pathVector
       let deltaY = this.pathYD/this.pathVector
       //movement
-      console.log(deltaX,deltaY)
       // if (!this.collideX) {
         if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
             this.x += deltaX*this.speed*SCALE;
@@ -370,10 +368,10 @@ class Skeleton {
     changeMoving() {
       //character stops when touching mouse
       switch(true) {
-        case (this.pathVector <= this.width/4 || !mousePresent || this.deathState):
+        case (this.vector <= this.width/4 || !mousePresent || this.deathState):
           this.moving = false;
           break;
-        case (this.pathVector > this.width/4 && mousePresent):
+        case (this.vector > this.width/4 && mousePresent):
           this.moving = true;
           break;
       }
@@ -420,5 +418,6 @@ class Skeleton {
       this.animate();
       this.changeMoving();
       this.drawFrame();
+      console.log(this.centerX,this.centerY)
     }
   }
