@@ -1,6 +1,8 @@
 class Wall {
     constructor(rawWidth, rawHeight, x, y, gridX, gridY) {
       this.spritesheet = './images/walls_spritesheet.png';
+      this.img = new Image();
+      this.img.src = this.spritesheet;
       this.rawWidth = rawWidth;
       this.rawHeight = rawHeight;
       this.x = x;
@@ -10,11 +12,7 @@ class Wall {
       this.spriteMatrix = [0,0,0,0];
       Wall.all.push(this);
     }
-    get img() {
-      let image = new Image();
-      image.src = this.spritesheet;
-      return image;
-    }
+
     get width() {return this.rawWidth*SCALE;}
     get height() {return this.rawHeight*SCALE;}
     get centerX() {return this.x+this.width/2;}

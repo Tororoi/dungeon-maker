@@ -1,6 +1,8 @@
 class Skeleton {
     constructor(rawWidth, rawHeight, speed, x, y) {
       this.spritesheet = './images/skeleton_spritesheet.png';
+      this.img = new Image();
+      this.img.src = this.spritesheet;
       this.rawWidth = rawWidth;
       this.rawHeight = rawHeight;
       this.speed = speed;
@@ -46,11 +48,11 @@ class Skeleton {
       this.pathTarget = [32,32];
       Skeleton.all.push(this);
     }
-    get img() {
-      let image = new Image();
-      image.src = this.spritesheet;
-      return image;
-    }
+    // get img() {
+    //   let image = new Image();
+    //   image.src = this.spritesheet;
+    //   return image;
+    // }
     get width() {return this.rawWidth*SCALE;}
     get height() {return this.rawHeight*SCALE;}
     get centerX() {return this.x+this.width/2;}
@@ -219,8 +221,6 @@ class Skeleton {
         //A* pathfinding algorithm
 
         //Start
-        // let gridX = Math.floor(self.centerX/32);
-        // let gridY = Math.floor(self.centerY/32);
         let start = gameGrid[self.gridY][self.gridX];
         start.type = "start";
         //Goal
@@ -498,12 +498,6 @@ class Skeleton {
         gameCtx.strokeStyle = "rgb(255,255,0,0.5)";
         gameCtx.stroke();
       }
-      // if (this.vector < this.width/4) {
-      //   gameCtx.beginPath();
-      //   gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width/4, 0, 2 * Math.PI);
-      //   gameCtx.fillStyle = "rgb(87, 139, 40, 0.5)";
-      //   gameCtx.fill();
-      // }
       //draw a specific frame from the spritesheet
       gameCtx.drawImage(this.img,
                   this.currentLoopIndex * this.rawWidth, this.direction * this.rawHeight, this.rawWidth, this.rawHeight,
