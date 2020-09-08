@@ -203,7 +203,7 @@ let generateBtn = document.querySelector(".generate-btn")
 generateBtn.addEventListener("click", generateMap);
 
 //Define the empty 2D Array
-let gameGrid = [];
+// let gameGrid = [];
 
 function generateMap(e) {
   let imageData = offScreenCTX.getImageData(0,0,offScreenCVS.width,offScreenCVS.height);
