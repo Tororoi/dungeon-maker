@@ -1,3 +1,7 @@
+//set scale of sprites
+let SCALE = 2;
+let tileSize = 16*SCALE;
+
 //-----------------------------Map Generator Canvas------------------------------//
 //Set onscreen canvas and its context
 let onScreenCVS = document.querySelector(".generator");
@@ -93,9 +97,6 @@ function selectColor(e) {
 
 //---------------------------Running the game-----------------------------//
 
-//set scale of sprite
-let SCALE = 2;
-
 //Game Canvas
 let gameCanvas = document.querySelector('.map');
 let gameCtx = gameCanvas.getContext('2d');
@@ -132,8 +133,8 @@ function collide(obj1,obj2) {
 Skeleton.all = [];
 Wall.all = [];
 
-let s = new Skeleton(32,32,0.5,0,0)
-let wall = new Wall(16,16,170,175)
+let s = new Skeleton(32,32,0.5,0,0);
+let wall = new Wall(16,16,170,175);
 
 //Listen for mouse movement
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
@@ -187,7 +188,7 @@ function drawLoop() {
 
     //Draw Cursor
     gameCtx.fillStyle = "red";
-    gameCtx.fillRect(Math.floor(mouseX/32)*32,Math.floor(mouseY/32)*32,32,32);
+    gameCtx.fillRect(Math.floor(mouseX/tileSize)*tileSize,Math.floor(mouseY/tileSize)*tileSize,tileSize,tileSize);
 
     objects.sort(compareZAxis);
     drawObjects(objects);
@@ -218,11 +219,11 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
-        objects.push(new Wall(16,16,x*32,y*32,x,y));
+        objects.push(new Wall(16,16,x*tileSize,y*tileSize,x,y));
         break;
       case (color === "rgba(255, 255, 255, 255)"):
         //white pixel
-        objects.push(new Skeleton(32,32,0.5,x*32-SCALE*16+16,y*32-SCALE*32+16));
+        objects.push(new Skeleton(32,32,0.5,x*tileSize-tileSize+(tileSize/2),y*tileSize-SCALE*tileSize+(tileSize/2)));
         break;
       default: 
         //transparent pixel

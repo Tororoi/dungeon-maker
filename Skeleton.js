@@ -202,7 +202,7 @@ class Skeleton {
             grid[i] = [];
             for (let j=0; j<offScreenCVS.width; j++) {
                 let checkWalls = w => w.gridX===j&&w.gridY===i;
-                let others = Skeleton.all.filter(s => s != this);
+                let others = Skeleton.all.filter(s => s != self);
                 if (Wall.all.some(checkWalls)) {
                     grid[i][j] = {parent: null, type: "wall", x: j, y: i, gCost: 0, hCost: 0, fCost: 0}
                 } else if (others.some(checkWalls)) {
