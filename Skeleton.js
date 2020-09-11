@@ -45,7 +45,7 @@ class Skeleton {
       this.decPlace = 1000;
       this.cornerBuffer = true;
       //path target
-      this.pathTarget = [32,32];
+      this.pathTarget = [0,0];
       Skeleton.all.push(this);
     }
     // get img() {
@@ -108,13 +108,13 @@ class Skeleton {
     }
 
     updateVectors() {
-      //base movement off of offset character coordinates to center of head of character
+      //base movement off of offset character coordinates to center of feet of character
       this.xD = this.target[0] - (this.centerX);
       this.yD = this.target[1] - (this.centerY);
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
-      //base movement off of offset character coordinates to center of head of character
+      //base movement off of offset character coordinates to center of feet of character
       this.pathXD = this.pathTarget[0] - (this.centerX);
       this.pathYD = this.pathTarget[1] - (this.centerY);
       //get the angle of the mouse relative to the character
@@ -494,7 +494,7 @@ class Skeleton {
       //Create collision circles to indicate when mouse is close enough to interact with clicking
       if (this.vector < this.width) {
         gameCtx.beginPath();
-        gameCtx.arc(this.x+(this.width/2), this.y+(this.height/8), this.width, 0, 2 * Math.PI);
+        gameCtx.arc(this.centerX, this.centerY, this.width, 0, 2 * Math.PI);
         gameCtx.strokeStyle = "rgb(255,255,0,0.5)";
         gameCtx.stroke();
       }
@@ -506,13 +506,7 @@ class Skeleton {
     
     draw() {
       let path = this.findPath();
-    //   path.forEach(n => {
-    //       gameCtx.fillStyle = "orange";
-    //       gameCtx.fillRect(n.x*32,n.y*32,32,32);
-    //   });
       if (path[0]) {
-        // gameCtx.fillStyle = "yellow";
-        // gameCtx.fillRect(path[0].x*32,path[0].y*32,32,32);
         this.pathTarget = [path[0].x*32+16,path[0].y*32+16]
       }
     //   Wall.all.forEach(b => {
