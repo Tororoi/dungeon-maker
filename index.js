@@ -93,6 +93,80 @@ function selectColor(e) {
 }
 
 //----------------------------Pathfinding---------------------------------//
+//set calc precision
+let decPlace = 1000;
+let cornerBuffer = true;
+//********* Calculate Cost ***********//
+//Calc path distance
+function calcGCost(node) {
+    let curr = node;
+    let cost = 0;
+    while(curr.parent) {
+        let step = Math.floor(euclid(curr,curr.parent)*decPlace)/decPlace;
+        cost += step;
+        curr = curr.parent;   
+    }
+    cost = Math.floor(cost*decPlace)/decPlace;
+    return cost;
+}
+//Calc heuristic distance (octile distance)
+function calcHCost(currNode, endNode) {
+    let a = Math.abs(currNode.x - endNode.x);
+    let b = Math.abs(currNode.y - endNode.y);
+    function leastSide() {
+        if (a > b) {return b;} else {return a;}
+    }
+    let diagonalCost = leastSide()*Math.sqrt(2);
+    let horizontalCost = Math.abs(b-a);
+    let sum = diagonalCost+horizontalCost;
+    return Math.floor(sum*decPlace)/decPlace;
+}
+//Euclidean Distance
+function euclid(node1, node2) {
+    let distance = Math.hypot(node1.x - node2.x,node1.y - node2.y);
+    return Math.floor(distance*decPlace)/decPlace;
+}
+//Tie Breakers
+function tieBreak() {noBreak()};
+//Tiebreak with cross product to favor paths closer to a straight line to the goal
+function crossBreak(currNode, startNode, endNode) {
+    let dx1 = currNode.x - endNode.x;
+    let dy1 = currNode.y - endNode.y;
+    let dx2 = startNode.x - endNode.x;
+    let dy2 = startNode.y - endNode.y;
+    let cross = Math.abs(dx1*dy2 - dx2*dy1);
+    let breaker = cross*(1/decPlace)
+    return breaker;
+}
+//Prioritize closest to goal
+function proximBreak(currNode, startNode, endNode) {
+    //dwarf gCost
+    let breaker = euclid(currNode, endNode)*(1/decPlace);
+    return breaker;
+}
+//No Tie Break
+function noBreak(currNode, startNode, endNode) {
+    return 0;
+}
+//Calc fCost
+function calcFCost(g, h) {
+    return Math.floor((g + h)*decPlace)/decPlace;
+}
+//Rank by fCost, then hCost if equal.
+function compareFCost(obj1,obj2) {
+    if (obj1.fCost === obj2.fCost) {
+        if (obj1.hCost > obj2.hCost) {
+            return 1;
+        } else {
+            return -1;
+        }
+    } else if (obj1.fCost > obj2.fCost) {
+        return 1;
+    } else if (obj1.fCost < obj2.fCost) {
+        return -1;
+    }
+    return 0;
+}
 
 
 //---------------------------Running the game-----------------------------//

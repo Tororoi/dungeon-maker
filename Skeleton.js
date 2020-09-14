@@ -41,19 +41,11 @@ class Skeleton {
       //set initial framecount
       this.frameCount = 0;
       this.frameLimit = 4;
-      //set calc precision
-      //****Move global variables and calcs outside class */
-      this.decPlace = 1000;
-      this.cornerBuffer = true;
       //path target
       this.pathTarget = [0,0];
       Skeleton.all.push(this);
     }
-    // get img() {
-    //   let image = new Image();
-    //   image.src = this.spritesheet;
-    //   return image;
-    // }
+
     get width() {return this.rawWidth*SCALE;}
     get height() {return this.rawHeight*SCALE;}
     get centerX() {return this.x+this.width/2;}
@@ -123,77 +115,77 @@ class Skeleton {
       this.pathVector = Math.hypot(this.pathXD,this.pathYD);
     }
 
-    //********* Calculate Cost ***********//
-    //Calc path distance
-    calcGCost(node) {
-        let curr = node;
-        let cost = 0;
-        while(curr.parent) {
-            let step = Math.floor(this.euclid(curr,curr.parent)*this.decPlace)/this.decPlace;
-            cost += step;
-            curr = curr.parent;   
-        }
-        cost = Math.floor(cost*this.decPlace)/this.decPlace;
-        return cost;
-    }
-    //Calc heuristic distance (octile distance)
-    calcHCost(currNode, endNode) {
-        let a = Math.abs(currNode.x - endNode.x);
-        let b = Math.abs(currNode.y - endNode.y);
-        function leastSide() {
-            if (a > b) {return b;} else {return a;}
-        }
-        let diagonalCost = leastSide()*Math.sqrt(2);
-        let horizontalCost = Math.abs(b-a);
-        let sum = diagonalCost+horizontalCost;
-        return Math.floor(sum*this.decPlace)/this.decPlace;
-    }
-    //Euclidean Distance
-    euclid(node1, node2) {
-        let distance = Math.hypot(node1.x - node2.x,node1.y - node2.y);
-        return Math.floor(distance*this.decPlace)/this.decPlace;
-    }
-    //Tie Breakers
-    get tieBreak() {return this.noBreak};
-    //Tiebreak with cross product to favor paths closer to a straight line to the goal
-    crossBreak(currNode, startNode, endNode) {
-        let dx1 = currNode.x - endNode.x;
-        let dy1 = currNode.y - endNode.y;
-        let dx2 = startNode.x - endNode.x;
-        let dy2 = startNode.y - endNode.y;
-        let cross = Math.abs(dx1*dy2 - dx2*dy1);
-        let breaker = cross*(1/this.decPlace)
-        return breaker;
-    }
-    //Prioritize closest to goal
-    proximBreak(currNode, startNode, endNode) {
-        //dwarf gCost
-        let breaker = this.euclid(currNode, endNode)*(1/this.decPlace);
-        return breaker;
-    }
-    //No Tie Break
-    noBreak(currNode, startNode, endNode) {
-        return 0;
-    }
-    //Calc fCost
-    calcFCost(g, h) {
-        return Math.floor((g + h)*this.decPlace)/this.decPlace;
-    }
-    //Rank by fCost, then hCost if equal.
-    compareFCost(obj1,obj2) {
-        if (obj1.fCost === obj2.fCost) {
-            if (obj1.hCost > obj2.hCost) {
-                return 1;
-            } else {
-                return -1;
-            }
-        } else if (obj1.fCost > obj2.fCost) {
-            return 1;
-        } else if (obj1.fCost < obj2.fCost) {
-            return -1;
-        }
-        return 0;
-    }
+    // //********* Calculate Cost ***********//
+    // //Calc path distance
+    // calcGCost(node) {
+    //     let curr = node;
+    //     let cost = 0;
+    //     while(curr.parent) {
+    //         let step = Math.floor(this.euclid(curr,curr.parent)*this.decPlace)/this.decPlace;
+    //         cost += step;
+    //         curr = curr.parent;   
+    //     }
+    //     cost = Math.floor(cost*this.decPlace)/this.decPlace;
+    //     return cost;
+    // }
+    // //Calc heuristic distance (octile distance)
+    // calcHCost(currNode, endNode) {
+    //     let a = Math.abs(currNode.x - endNode.x);
+    //     let b = Math.abs(currNode.y - endNode.y);
+    //     function leastSide() {
+    //         if (a > b) {return b;} else {return a;}
+    //     }
+    //     let diagonalCost = leastSide()*Math.sqrt(2);
+    //     let horizontalCost = Math.abs(b-a);
+    //     let sum = diagonalCost+horizontalCost;
+    //     return Math.floor(sum*this.decPlace)/this.decPlace;
+    // }
+    // //Euclidean Distance
+    // euclid(node1, node2) {
+    //     let distance = Math.hypot(node1.x - node2.x,node1.y - node2.y);
+    //     return Math.floor(distance*this.decPlace)/this.decPlace;
+    // }
+    // //Tie Breakers
+    // get tieBreak() {return this.noBreak};
+    // //Tiebreak with cross product to favor paths closer to a straight line to the goal
+    // crossBreak(currNode, startNode, endNode) {
+    //     let dx1 = currNode.x - endNode.x;
+    //     let dy1 = currNode.y - endNode.y;
+    //     let dx2 = startNode.x - endNode.x;
+    //     let dy2 = startNode.y - endNode.y;
+    //     let cross = Math.abs(dx1*dy2 - dx2*dy1);
+    //     let breaker = cross*(1/this.decPlace)
+    //     return breaker;
+    // }
+    // //Prioritize closest to goal
+    // proximBreak(currNode, startNode, endNode) {
+    //     //dwarf gCost
+    //     let breaker = this.euclid(currNode, endNode)*(1/this.decPlace);
+    //     return breaker;
+    // }
+    // //No Tie Break
+    // noBreak(currNode, startNode, endNode) {
+    //     return 0;
+    // }
+    // //Calc fCost
+    // calcFCost(g, h) {
+    //     return Math.floor((g + h)*this.decPlace)/this.decPlace;
+    // }
+    // //Rank by fCost, then hCost if equal.
+    // compareFCost(obj1,obj2) {
+    //     if (obj1.fCost === obj2.fCost) {
+    //         if (obj1.hCost > obj2.hCost) {
+    //             return 1;
+    //         } else {
+    //             return -1;
+    //         }
+    //     } else if (obj1.fCost > obj2.fCost) {
+    //         return 1;
+    //     } else if (obj1.fCost < obj2.fCost) {
+    //         return -1;
+    //     }
+    //     return 0;
+    // }
 
     makeGrid() {
         //Make the 2D array to hold all objects
@@ -243,8 +235,8 @@ class Skeleton {
         let open = new Set();
         open.add(start);
         start.gCost = 0;
-        start.hCost = Math.floor((self.calcHCost(start, goal)+self.tieBreak(start))*self.decPlace)/self.decPlace;
-        start.fCost = self.calcFCost(start.gCost, start.hCost);
+        start.hCost = Math.floor((calcHCost(start, goal)+tieBreak(start))*decPlace)/decPlace;
+        start.fCost = calcFCost(start.gCost, start.hCost);
         //empty set
         let closed = new Set();
         let current = start;
@@ -321,7 +313,7 @@ class Skeleton {
                     if ((north.type === "wall")&&(east.type === "wall")) {
                         continue;
                     }
-                    if (self.cornerBuffer) {
+                    if (cornerBuffer) {
                         if ((east.type === "wall")) {
                             continue;
                         }
@@ -335,7 +327,7 @@ class Skeleton {
                     if ((north.type === "wall")&&(west.type === "wall")) {
                         continue;
                     }
-                    if (self.cornerBuffer) {
+                    if (cornerBuffer) {
                         if ((west.type === "wall")) {
                             continue;
                         }
@@ -348,7 +340,7 @@ class Skeleton {
                     if ((south.type === "wall")&&(east.type === "wall")) {
                         continue;
                     }
-                    if (self.cornerBuffer) {
+                    if (cornerBuffer) {
                         if ((east.type === "wall")) {
                             continue;
                         }
@@ -361,7 +353,7 @@ class Skeleton {
                     if ((south.type === "wall")&&(west.type === "wall")) {
                         continue;
                     }
-                    if (self.cornerBuffer) {
+                    if (cornerBuffer) {
                         if ((west.type === "wall")) {
                             continue;
                         }
@@ -370,24 +362,24 @@ class Skeleton {
                         }
                     }
                 }
-                let tCost = self.euclid(neighbor,current);
+                let tCost = euclid(neighbor,current);
                 //For new tiles
                 if (!(open.has(neighbor)||closed.has(neighbor))) {
                     if (neighbor!=start) {neighbor.parent = current;}
                     open.add(neighbor);
                     //Round the costs to take care of floating point errors.
-                    neighbor.gCost = self.calcGCost(neighbor);
-                    neighbor.hCost = Math.floor((self.calcHCost(neighbor, goal) + self.tieBreak(neighbor, start, goal))*self.decPlace)/self.decPlace;
-                    neighbor.fCost = self.calcFCost(neighbor.gCost, neighbor.hCost);
+                    neighbor.gCost = calcGCost(neighbor);
+                    neighbor.hCost = Math.floor((calcHCost(neighbor, goal) + tieBreak(neighbor, start, goal))*decPlace)/decPlace;
+                    neighbor.fCost = calcFCost(neighbor.gCost, neighbor.hCost);
                 } else if (open.has(neighbor)&&neighbor.gCost > current.gCost+tCost) {
                     if (neighbor!=start) {neighbor.parent = current;}
-                    neighbor.gCost = self.calcGCost(neighbor);
-                    neighbor.fCost = self.calcFCost(neighbor.gCost, neighbor.hCost);
+                    neighbor.gCost = calcGCost(neighbor);
+                    neighbor.fCost = calcFCost(neighbor.gCost, neighbor.hCost);
                 }
             }
             //make current lowest fCost
             let arr = [...open];
-            arr.sort(self.compareFCost);
+            arr.sort(compareFCost);
             current = arr[0];
         }
         //This makes skeletons stop moving if there's something blocking the path. Behavior should be to go to nearest available tile to the site of the blockage.
