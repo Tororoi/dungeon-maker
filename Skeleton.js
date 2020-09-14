@@ -42,6 +42,7 @@ class Skeleton {
       this.frameCount = 0;
       this.frameLimit = 4;
       //set calc precision
+      //****Move global variables and calcs outside class */
       this.decPlace = 1000;
       this.cornerBuffer = true;
       //path target
