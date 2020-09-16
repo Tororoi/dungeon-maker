@@ -13,8 +13,8 @@ let offScreenCVS = document.createElement('canvas');
 let offScreenCTX = offScreenCVS.getContext("2d");
 
 //Set the dimensions of the drawing canvas
-offScreenCVS.width = 16;
-offScreenCVS.height = 10;
+offScreenCVS.width = 32;
+offScreenCVS.height = 20;
 
 //Create an Image with a default source of the existing onscreen canvas
 let img = new Image;

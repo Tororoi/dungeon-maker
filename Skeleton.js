@@ -115,78 +115,6 @@ class Skeleton {
       this.pathVector = Math.hypot(this.pathXD,this.pathYD);
     }
 
-    // //********* Calculate Cost ***********//
-    // //Calc path distance
-    // calcGCost(node) {
-    //     let curr = node;
-    //     let cost = 0;
-    //     while(curr.parent) {
-    //         let step = Math.floor(this.euclid(curr,curr.parent)*this.decPlace)/this.decPlace;
-    //         cost += step;
-    //         curr = curr.parent;   
-    //     }
-    //     cost = Math.floor(cost*this.decPlace)/this.decPlace;
-    //     return cost;
-    // }
-    // //Calc heuristic distance (octile distance)
-    // calcHCost(currNode, endNode) {
-    //     let a = Math.abs(currNode.x - endNode.x);
-    //     let b = Math.abs(currNode.y - endNode.y);
-    //     function leastSide() {
-    //         if (a > b) {return b;} else {return a;}
-    //     }
-    //     let diagonalCost = leastSide()*Math.sqrt(2);
-    //     let horizontalCost = Math.abs(b-a);
-    //     let sum = diagonalCost+horizontalCost;
-    //     return Math.floor(sum*this.decPlace)/this.decPlace;
-    // }
-    // //Euclidean Distance
-    // euclid(node1, node2) {
-    //     let distance = Math.hypot(node1.x - node2.x,node1.y - node2.y);
-    //     return Math.floor(distance*this.decPlace)/this.decPlace;
-    // }
-    // //Tie Breakers
-    // get tieBreak() {return this.noBreak};
-    // //Tiebreak with cross product to favor paths closer to a straight line to the goal
-    // crossBreak(currNode, startNode, endNode) {
-    //     let dx1 = currNode.x - endNode.x;
-    //     let dy1 = currNode.y - endNode.y;
-    //     let dx2 = startNode.x - endNode.x;
-    //     let dy2 = startNode.y - endNode.y;
-    //     let cross = Math.abs(dx1*dy2 - dx2*dy1);
-    //     let breaker = cross*(1/this.decPlace)
-    //     return breaker;
-    // }
-    // //Prioritize closest to goal
-    // proximBreak(currNode, startNode, endNode) {
-    //     //dwarf gCost
-    //     let breaker = this.euclid(currNode, endNode)*(1/this.decPlace);
-    //     return breaker;
-    // }
-    // //No Tie Break
-    // noBreak(currNode, startNode, endNode) {
-    //     return 0;
-    // }
-    // //Calc fCost
-    // calcFCost(g, h) {
-    //     return Math.floor((g + h)*this.decPlace)/this.decPlace;
-    // }
-    // //Rank by fCost, then hCost if equal.
-    // compareFCost(obj1,obj2) {
-    //     if (obj1.fCost === obj2.fCost) {
-    //         if (obj1.hCost > obj2.hCost) {
-    //             return 1;
-    //         } else {
-    //             return -1;
-    //         }
-    //     } else if (obj1.fCost > obj2.fCost) {
-    //         return 1;
-    //     } else if (obj1.fCost < obj2.fCost) {
-    //         return -1;
-    //     }
-    //     return 0;
-    // }
-
     makeGrid() {
         //Make the 2D array to hold all objects
         let self = this;
@@ -508,7 +436,7 @@ class Skeleton {
     //   Skeleton.all.forEach(s => {
     //     collide(this,s);
     //   })
-  
+      
       this.animate();
       this.changeMoving();
       this.drawFrame();
