@@ -17,9 +17,6 @@ class Player {
     //   this.pathYD = 0;
     //   this.pathAngle = 0;
     //   this.pathVector = 1;
-    //   //collisions
-    //   this.collideX = false;
-    //   this.collideY = false;
     //   //state
     //   this.moving = false;
     //   this.deathState = false;
@@ -126,67 +123,30 @@ class Player {
       this.vector = Math.hypot(this.xD,this.yD);
     }
 
-    // move() {
-    //     if (buttonMap.left && this.xMin>0) {
-    //         // left arrow
-    //         this.moveX(-1*this.speed);
-    //     } 
-    //     if (buttonMap.up && this.yMin>0) {
-    //         // up arrow
-    //         this.moveY(-1*this.speed);
-    //     }
-    //     if (buttonMap.right && this.xMax<mapCanvas.width) {
-    //         // right arrow
-    //         this.moveX(this.speed);
-    //     }
-    //     if (buttonMap.down && this.yMax<mapCanvas.height) {
-    //         // down arrow
-    //         this.moveY(this.speed);
-    //     }
-    // }
-
-    // moveX(dir) {
-    //     this.x += dir;
-    //     Skeleton.all.forEach(s => s.updateVectors());
-    // }
-
-    // moveY(dir) {
-    //     this.y += dir;
-    //     Skeleton.all.forEach(s => s.updateVectors());
-    // }
-
-    // unMoveX() {
-    //     if (buttonMap.left && this.xMin>0) {
-    //         // left arrow
-    //         this.moveX(this.speed);
-    //       } 
-    //     if (buttonMap.right && this.xMax<mapCanvas.width) {
-    //         // right arrow
-    //         this.moveX(-1*this.speed);
-    //       }
-    // }
-
-    // unMoveY() {
-    //     if (buttonMap.up && this.yMin>0) {
-    //         // up arrow
-    //         this.moveY(this.speed);
-    //     }
-    //     if (buttonMap.down && this.yMax<mapCanvas.height) {
-    //         // down arrow
-    //         this.moveY(-1*this.speed);
-    //     }
-    // }
-
     move() {
       let deltaX = this.xD/this.vector
       let deltaY = this.yD/this.vector
       //movement
-        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
-            this.x += deltaX*this.speed*SCALE;
-        }
-        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
-            this.y += deltaY*this.speed*SCALE;
-        }
+      if (this.vector != 0) {
+        this.x += deltaX*this.speed*SCALE;
+        this.y += deltaY*this.speed*SCALE;
+        if (this.xMin < 0 || this.xMax > mapCanvas.width) {
+            this.x -= deltaX*this.speed*SCALE;
+          }
+          if (this.yMin < 0 || this.yMax > mapCanvas.height) {
+            this.y -= deltaY*this.speed*SCALE;
+          }
+      }
+        // if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
+        //     this.x += deltaX*this.speed*SCALE;
+        // } else {
+        //     this.x -= deltaX*this.speed*SCALE;
+        // }
+        // if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
+        //     this.y += deltaY*this.speed*SCALE;
+        // } else {
+        //     this.y -= deltaY*this.speed*SCALE;
+        // }
        //calling the angle math here adjusts character's movement even if mouse stops moving
        this.updateVectors();
        Skeleton.all.forEach(s => s.updateVectors());
@@ -195,7 +155,7 @@ class Player {
     unMoveX() {
       let deltaX = this.xD/this.vector
       //movement
-        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
+        if (this.vector != 0) {
             this.x -= deltaX*this.speed*SCALE;
         }
        this.updateVectors();
@@ -204,7 +164,7 @@ class Player {
     unMoveY() {
       let deltaY = this.yD/this.vector
       //movement
-        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
+        if (this.vector != 0) {
             this.y -= deltaY*this.speed*SCALE;
         }
        this.updateVectors();

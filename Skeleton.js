@@ -17,9 +17,6 @@ class Skeleton {
       this.pathYD = 0;
       this.pathAngle = 0;
       this.pathVector = 1;
-      //collisions
-      this.collideX = false;
-      this.collideY = false;
       //state
       this.moving = false;
       this.deathState = false;
@@ -453,8 +450,8 @@ class Skeleton {
       let path = this.findPath();
       if (path[0]) {
         this.pathTarget = [path[0].x*tileSize+16,path[0].y*tileSize+16]
-        mapCtx.fillStyle = "rgb(0,255,0,0.2)";
-        path.forEach(m => {mapCtx.fillRect(m.x*tileSize,m.y*tileSize,tileSize,tileSize)})
+        // mapCtx.fillStyle = "rgb(0,255,0,0.2)";
+        // path.forEach(m => {mapCtx.fillRect(m.x*tileSize,m.y*tileSize,tileSize,tileSize)})
       }
     //   Wall.all.forEach(b => {
     //     collide(this, b);
