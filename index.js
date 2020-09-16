@@ -187,8 +187,8 @@ gameCtx.imageSmoothingEnabled = false;
 let mouseX;
 let mouseY;
 //coordinates of character
-let charX;
-let charY;
+let charX = 0;
+let charY = 0;
 //coordinates of viewport
 let viewX = 0;
 let viewY = 0;
@@ -218,24 +218,45 @@ function collide(obj1,obj2) {
   }
 }
 
+Player.all = [];
 Skeleton.all = [];
 Wall.all = [];
 
 let s = new Skeleton(32,32,0.5,0,0);
 let wall = new Wall(16,16,170,175);
+let char = new Player(32,32,0.5,0,0);
 
 //Listen for arrow press
 window.addEventListener('keydown', keyPressListener);
 function keyPressListener(e) {
   e.preventDefault();
-  if (e.keyCode === '37') {
+  if (e.keyCode == '37') {
     // left arrow
-  } else if (e.keyCode === '38') {
+    Player.all.forEach(p => {
+      p.moveX(-2);
+    })
+    if (viewX > 0) {viewX -= 2}
+  } 
+  if (e.keyCode == '38') {
     // up arrow
-  } else if (e.keyCode === '39') {
+    Player.all.forEach(p => {
+      p.moveY(-2);
+    })
+    if (viewY > 0) {viewY -= 2}
+  }
+  if (e.keyCode == '39') {
     // right arrow
-  } else if (e.keyCode === '40') {
+    Player.all.forEach(p => {
+      p.moveX(2);
+    })
+    if (viewX < mapCanvas.width-gameCanvas.width) {viewX += 2}
+  }
+  if (e.keyCode == '40') {
     // down arrow
+    Player.all.forEach(p => {
+      p.moveY(2);
+    })
+    if (viewY < mapCanvas.height-gameCanvas.height) {viewY += 2}
   }
 }
 
@@ -243,8 +264,8 @@ function keyPressListener(e) {
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
 function mouseMoveListener(e) {
   //  //get mouse coordinates within the gameCanvas
-  mouseX=e.offsetX;
-  mouseY=e.offsetY;
+  mouseX=e.offsetX+viewX;
+  mouseY=e.offsetY+viewY;
   //Calc viewport coords on map
   // let w = gameCanvas.width;
   // let h = gameCanvas.height;
@@ -343,6 +364,7 @@ function generateMap(e) {
   let imageData = offScreenCTX.getImageData(0,0,offScreenCVS.width,offScreenCVS.height);
   //reset objects on map
   objects = [];
+  Player.all = [];
   Skeleton.all = [];
   Wall.all = [];
   //Iterate through pixels and make objects each time a color matches
@@ -350,6 +372,10 @@ function generateMap(e) {
     let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
     let color = `rgba(${imageData.data[i]}, ${imageData.data[i+1]}, ${imageData.data[i+2]}, ${imageData.data[i+3]})`
     switch(true) {
+      case (color === "rgba(255, 165, 0, 255)"):
+        //orange pixel
+        objects.push(new Player(32,32,0.5,x*tileSize-tileSize+(tileSize/2),y*tileSize-SCALE*tileSize+(tileSize/2)));
+        break;
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel
         objects.push(new Wall(16,16,x*tileSize,y*tileSize,x,y));

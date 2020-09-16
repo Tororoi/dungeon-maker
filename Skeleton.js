@@ -149,9 +149,9 @@ class Skeleton {
         let goalY = Math.floor(self.target[1]/32);
         //Account for edge of canvas
         if (goalY<0) {goalY = 0};
-        if (goalY>9) {goalY = 9};
+        if (goalY>offScreenCVS.height-1) {goalY = offScreenCVS.height-1};
         if (goalX<0) {goalX = 0};
-        if (goalX>15) {goalX = 15};
+        if (goalX>offScreenCVS.width-1) {goalX = offScreenCVS.width-1};
 
         let goal = gameGrid[goalY][goalX];
         if (goal.type === "wall") {
@@ -319,10 +319,10 @@ class Skeleton {
       let deltaX = this.pathXD/this.pathVector
       let deltaY = this.pathYD/this.pathVector
       //movement
-        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
+        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
             this.x += deltaX*this.speed*SCALE;
         }
-        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= gameCanvas.height) {
+        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
             this.y += deltaY*this.speed*SCALE;
         }
        //calling the angle math here adjusts character's movement even if mouse stops moving
@@ -332,7 +332,7 @@ class Skeleton {
     unMoveX() {
       let deltaX = this.pathXD/this.pathVector
       //movement
-        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= gameCanvas.width) {
+        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
             this.x -= deltaX*this.speed*SCALE;
         }
        this.updateVectors();
@@ -341,7 +341,7 @@ class Skeleton {
     unMoveY() {
       let deltaY = this.pathYD/this.pathVector
       //movement
-        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= gameCanvas.height) {
+        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
             this.y -= deltaY*this.speed*SCALE;
         }
        this.updateVectors();
@@ -428,7 +428,8 @@ class Skeleton {
     draw() {
       let path = this.findPath();
       if (path[0]) {
-        this.pathTarget = [path[0].x*32+16,path[0].y*32+16]
+        this.pathTarget = [path[0].x*tileSize+16,path[0].y*tileSize+16]
+        // path.forEach(m => {mapCtx.fillRect(m.x*tileSize,m.y*tileSize,tileSize,tileSize)})
       }
     //   Wall.all.forEach(b => {
     //     collide(this, b);
