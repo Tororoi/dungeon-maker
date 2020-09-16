@@ -60,18 +60,18 @@ function draw(e) {
     }
     //Set the source of the image to the offscreen canvas
     source = offScreenCVS.toDataURL();
-    renderImage();
+    renderImage(img, onScreenCVS, onScreenCTX);
 }
 
 //Once the image is loaded, draw the image onto the onscreen canvas.
-function renderImage() {
-    img.onload = () => {
+function renderImage(image, cvs, ctx) {
+    image.onload = () => {
       //Prevent blurring
-      onScreenCTX.imageSmoothingEnabled = false;
-      onScreenCTX.clearRect(0,0,onScreenCVS.width,onScreenCVS.height);
-      onScreenCTX.drawImage(img,0,0,onScreenCVS.width,onScreenCVS.height)
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0,0,cvs.width,cvs.height);
+      ctx.drawImage(img,0,0,cvs.width,cvs.height)
     }
-    img.src = source;
+    image.src = source;
 }
 
 //-------------------------------ToolBox----------------------------------//
@@ -170,14 +170,28 @@ function compareFCost(obj1,obj2) {
 
 
 //---------------------------Running the game-----------------------------//
+//Game Map Canvas (offscreen)
+let mapCanvas = document.createElement('canvas');
+let mapCtx = mapCanvas.getContext('2d');
 
-//Game Canvas
-let gameCanvas = document.querySelector('.map');
+mapCanvas.width = offScreenCVS.width*tileSize;
+mapCanvas.height = offScreenCVS.height*tileSize;
+
+mapCtx.imageSmoothingEnabled = false;
+
+//Game Canvas (onscreen)
+let gameCanvas = document.querySelector('.game');
 let gameCtx = gameCanvas.getContext('2d');
 gameCtx.imageSmoothingEnabled = false;
 //coordinates of mouse
 let mouseX;
 let mouseY;
+//coordinates of character
+let charX;
+let charY;
+//coordinates of viewport
+let viewX = 0;
+let viewY = 0;
 //start with mouse outside of gameCanvas
 let mousePresent = false;
 
@@ -210,13 +224,50 @@ Wall.all = [];
 let s = new Skeleton(32,32,0.5,0,0);
 let wall = new Wall(16,16,170,175);
 
+//Listen for arrow press
+window.addEventListener('keydown', keyPressListener);
+function keyPressListener(e) {
+  e.preventDefault();
+  if (e.keyCode === '37') {
+    // left arrow
+  } else if (e.keyCode === '38') {
+    // up arrow
+  } else if (e.keyCode === '39') {
+    // right arrow
+  } else if (e.keyCode === '40') {
+    // down arrow
+  }
+}
+
 //Listen for mouse movement
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
 function mouseMoveListener(e) {
-   //get mouse coordinates within the gameCanvas
-   mouseX=e.offsetX;
-   mouseY=e.offsetY;
-   Skeleton.all.forEach(s => s.updateVectors());
+  //  //get mouse coordinates within the gameCanvas
+  mouseX=e.offsetX;
+  mouseY=e.offsetY;
+  //Calc viewport coords on map
+  // let w = gameCanvas.width;
+  // let h = gameCanvas.height;
+  // function moveView() {
+  //   if (mouseX > w/2) {
+  //     viewX += 1;
+  //   }
+  //   if (mouseX < w/2) {
+  //     viewX -= 1;
+  //   }
+  //   if (mouseY > h/2) {
+  //     viewY += 1;
+  //   }
+  //   if (mouseY < h/2) {
+  //     viewY -= 1;
+  //   }
+  //   if (mouseX != w/2 && mouseY != h/2) {
+  //     window.setTimeout(moveView, 1000);
+  //   }
+  // }
+
+  Skeleton.all.forEach(s => s.updateVectors());
+  // moveView();
 }
 
 //Listen for mouse presence
@@ -255,17 +306,25 @@ function drawObjects(array) {
     }
 }
 
+function renderView(img) {
+  gameCtx.drawImage(img, viewX, viewY, gameCanvas.width, gameCanvas.height, 0, 0, gameCanvas.width, gameCanvas.height);
+}
+
 let objects = [];
 
 function drawLoop() {
-    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
     //Draw Cursor
-    gameCtx.fillStyle = "red";
-    gameCtx.fillRect(Math.floor(mouseX/tileSize)*tileSize,Math.floor(mouseY/tileSize)*tileSize,tileSize,tileSize);
+    mapCtx.fillStyle = "red";
+    mapCtx.fillRect(Math.floor(mouseX/tileSize)*tileSize,Math.floor(mouseY/tileSize)*tileSize,tileSize,tileSize);
 
     objects.sort(compareZAxis);
     drawObjects(objects);
+
+    //Render view of game onscreen
+    gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    renderView(mapCanvas);
 
     window.requestAnimationFrame(drawLoop);
 }

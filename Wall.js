@@ -57,7 +57,7 @@ class Wall {
     }
   
     draw() {
-      gameCtx.drawImage(this.img,
+      mapCtx.drawImage(this.img,
         this.spriteX * this.rawWidth, this.spriteY * this.rawHeight * 2, this.rawWidth, this.rawHeight * 2,
         this.x, this.y-this.height, this.width, this.height * 2);
     }

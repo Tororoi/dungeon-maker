@@ -414,13 +414,13 @@ class Skeleton {
     drawFrame() {
       //Create collision circles to indicate when mouse is close enough to interact with clicking
       if (this.vector < this.width) {
-        gameCtx.beginPath();
-        gameCtx.arc(this.centerX, this.centerY, this.width, 0, 2 * Math.PI);
-        gameCtx.strokeStyle = "rgb(255,255,0,0.5)";
-        gameCtx.stroke();
+        mapCtx.beginPath();
+        mapCtx.arc(this.centerX, this.centerY, this.width, 0, 2 * Math.PI);
+        mapCtx.strokeStyle = "rgb(255,255,0,0.5)";
+        mapCtx.stroke();
       }
       //draw a specific frame from the spritesheet
-      gameCtx.drawImage(this.img,
+      mapCtx.drawImage(this.img,
                   this.currentLoopIndex * this.rawWidth, this.direction * this.rawHeight, this.rawWidth, this.rawHeight,
                   this.x, this.y, this.width, this.height);
     }
