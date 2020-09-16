@@ -92,9 +92,17 @@ class Skeleton {
       }
     }
 
+    // get target() {
+    //     if (!!mouseX) {
+    //         return [mouseX, mouseY];
+    //     } else {
+    //         return [32,32];
+    //     }
+    // }
+
     get target() {
-        if (!!mouseX) {
-            return [mouseX, mouseY];
+        if (!!Player.all[0]) {
+            return [Player.all[0].centerX, Player.all[0].centerY];
         } else {
             return [32,32];
         }
@@ -398,18 +406,31 @@ class Skeleton {
         }
       }
     }
-    
+    //For char
     changeMoving() {
-      //character stops when touching mouse
-      switch(true) {
-        case (this.vector <= this.width/2 || !mousePresent || this.deathState):
-          this.moving = false;
-          break;
-        case (this.vector > this.width/2 && mousePresent):
-          this.moving = true;
-          break;
-      }
+        //character stops when touching target
+        switch(true) {
+          case (this.vector <= this.width/2 || this.deathState):
+            this.moving = false;
+            break;
+          case (this.vector > this.width/2):
+            this.moving = true;
+            break;
+        }
     }
+
+    //For mouse
+    // changeMoving() {
+    //   //character stops when touching target
+    //   switch(true) {
+    //     case (this.vector <= this.width/2 || !mousePresent || this.deathState):
+    //       this.moving = false;
+    //       break;
+    //     case (this.vector > this.width/2 && mousePresent):
+    //       this.moving = true;
+    //       break;
+    //   }
+    // }
     
     drawFrame() {
       //Create collision circles to indicate when mouse is close enough to interact with clicking
@@ -419,6 +440,9 @@ class Skeleton {
         mapCtx.strokeStyle = "rgb(255,255,0,0.5)";
         mapCtx.stroke();
       }
+      //draw tile skeleton is standing on
+      mapCtx.fillStyle = "rgb(255,255,0,0.2)";
+      mapCtx.fillRect(this.gridX*tileSize,this.gridY*tileSize,tileSize,tileSize);
       //draw a specific frame from the spritesheet
       mapCtx.drawImage(this.img,
                   this.currentLoopIndex * this.rawWidth, this.direction * this.rawHeight, this.rawWidth, this.rawHeight,
@@ -429,7 +453,8 @@ class Skeleton {
       let path = this.findPath();
       if (path[0]) {
         this.pathTarget = [path[0].x*tileSize+16,path[0].y*tileSize+16]
-        // path.forEach(m => {mapCtx.fillRect(m.x*tileSize,m.y*tileSize,tileSize,tileSize)})
+        mapCtx.fillStyle = "rgb(0,255,0,0.2)";
+        path.forEach(m => {mapCtx.fillRect(m.x*tileSize,m.y*tileSize,tileSize,tileSize)})
       }
     //   Wall.all.forEach(b => {
     //     collide(this, b);

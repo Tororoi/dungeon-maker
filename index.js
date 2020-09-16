@@ -55,6 +55,18 @@ function draw(e) {
     let ratio = onScreenCVS.width/offScreenCVS.width;
     if (offScreenCTX.fillStyle === "rgba(0, 0, 0, 0)") {
       offScreenCTX.clearRect(Math.floor(e.offsetX/ratio),Math.floor(e.offsetY/ratio),1,1);
+    } else if (offScreenCTX.fillStyle === "#ffa500") {
+      //Prevent multiple players
+      let imageData = offScreenCTX.getImageData(0,0,offScreenCVS.width,offScreenCVS.height);
+      for (let i=0; i<imageData.data.length; i+=4) {
+          let x = i/4%offScreenCVS.width, y = (i/4-x)/offScreenCVS.width;
+          let color = `rgba(${imageData.data[i]}, ${imageData.data[i+1]}, ${imageData.data[i+2]}, ${imageData.data[i+3]})`
+          //Clear other pixels of same color
+          if (color === "rgba(255, 165, 0, 255)") {
+              offScreenCTX.clearRect(x,y,1,1);
+          }
+      }
+      offScreenCTX.fillRect(Math.floor(e.offsetX/ratio),Math.floor(e.offsetY/ratio),1,1);
     } else {
       offScreenCTX.fillRect(Math.floor(e.offsetX/ratio),Math.floor(e.offsetY/ratio),1,1);
     }
@@ -186,15 +198,13 @@ gameCtx.imageSmoothingEnabled = false;
 //coordinates of mouse
 let mouseX;
 let mouseY;
-//coordinates of character
-let charX = 0;
-let charY = 0;
 //coordinates of viewport
 let viewX = 0;
 let viewY = 0;
 //start with mouse outside of gameCanvas
 let mousePresent = false;
 
+//collision code. obj1 is main object
 function collide(obj1,obj2) {
   let yOverlap = !!((obj1.yMin < obj2.yMax)&&(obj1.yMax > obj2.yMin));
   let xOverlap = !!((obj1.xMin < obj2.xMax)&&(obj1.xMax > obj2.xMin));
@@ -204,10 +214,10 @@ function collide(obj1,obj2) {
   let upOf2 = !!(obj1.centerY<obj2.centerY);
   let downOf2 = !!(obj1.centerY>obj2.centerY);
 
-  let checkEast = !!((obj1.xMax+Math.sign(obj1.xD) >= obj2.xMin)&&yOverlap&&leftOf2);
-  let checkWest = !!((obj1.xMin+Math.sign(obj1.xD) <= obj2.xMax)&&yOverlap&&rightOf2);
-  let checkSouth = !!((obj1.yMax+Math.sign(obj1.yD) >= obj2.yMin)&&xOverlap&&upOf2);
-  let checkNorth = !!((obj1.yMin+Math.sign(obj1.yD) <= obj2.yMax)&&xOverlap&&downOf2);
+  let checkEast = !!((obj1.xMax+Math.sign(obj1.xD)*obj1.speed*SCALE >= obj2.xMin)&&yOverlap&&leftOf2);
+  let checkWest = !!((obj1.xMin+Math.sign(obj1.xD)*obj1.speed*SCALE <= obj2.xMax)&&yOverlap&&rightOf2);
+  let checkSouth = !!((obj1.yMax+Math.sign(obj1.yD)*obj1.speed*SCALE >= obj2.yMin)&&xOverlap&&upOf2);
+  let checkNorth = !!((obj1.yMin+Math.sign(obj1.yD)*obj1.speed*SCALE <= obj2.yMax)&&xOverlap&&downOf2);
 
   if (checkEast||checkWest) {
     obj1.unMoveX();
@@ -221,42 +231,52 @@ function collide(obj1,obj2) {
 Player.all = [];
 Skeleton.all = [];
 Wall.all = [];
+let view = new Viewport();
 
 let s = new Skeleton(32,32,0.5,0,0);
 let wall = new Wall(16,16,170,175);
 let char = new Player(32,32,0.5,0,0);
 
+//**** Controller ****//
+let buttonMap = {right: false, down: false, left: false, up: false};
 //Listen for arrow press
-window.addEventListener('keydown', keyPressListener);
-function keyPressListener(e) {
+window.addEventListener('keydown', keyDownListener);
+function keyDownListener(e) {
   e.preventDefault();
-  if (e.keyCode == '37') {
-    // left arrow
-    Player.all.forEach(p => {
-      p.moveX(-2);
-    })
-    if (viewX > 0) {viewX -= 2}
-  } 
-  if (e.keyCode == '38') {
-    // up arrow
-    Player.all.forEach(p => {
-      p.moveY(-2);
-    })
-    if (viewY > 0) {viewY -= 2}
+  switch(e.key) {
+    case "ArrowUp":
+      buttonMap.up = true;
+      break;
+    case "ArrowRight":
+      buttonMap.right = true;
+      break;
+    case "ArrowDown":
+      buttonMap.down = true;
+      break;
+    case "ArrowLeft":
+      buttonMap.left = true;
+      break;
+    case " ":
+      Skeleton.all.forEach(s => s.changeState());
+      break;
   }
-  if (e.keyCode == '39') {
-    // right arrow
-    Player.all.forEach(p => {
-      p.moveX(2);
-    })
-    if (viewX < mapCanvas.width-gameCanvas.width) {viewX += 2}
-  }
-  if (e.keyCode == '40') {
-    // down arrow
-    Player.all.forEach(p => {
-      p.moveY(2);
-    })
-    if (viewY < mapCanvas.height-gameCanvas.height) {viewY += 2}
+}
+window.addEventListener('keyup', keyUpListener);
+function keyUpListener(e) {
+  e.preventDefault();
+  switch(e.key) {
+    case "ArrowUp":
+      buttonMap.up = false;
+      break;
+    case "ArrowRight":
+      buttonMap.right = false;
+      break;
+    case "ArrowDown":
+      buttonMap.down = false;
+      break;
+    case "ArrowLeft":
+      buttonMap.left = false;
+      break;
   }
 }
 
@@ -264,30 +284,10 @@ function keyPressListener(e) {
 gameCanvas.addEventListener('mousemove', mouseMoveListener);
 function mouseMoveListener(e) {
   //  //get mouse coordinates within the gameCanvas
-  mouseX=e.offsetX+viewX;
-  mouseY=e.offsetY+viewY;
-  //Calc viewport coords on map
-  // let w = gameCanvas.width;
-  // let h = gameCanvas.height;
-  // function moveView() {
-  //   if (mouseX > w/2) {
-  //     viewX += 1;
-  //   }
-  //   if (mouseX < w/2) {
-  //     viewX -= 1;
-  //   }
-  //   if (mouseY > h/2) {
-  //     viewY += 1;
-  //   }
-  //   if (mouseY < h/2) {
-  //     viewY -= 1;
-  //   }
-  //   if (mouseX != w/2 && mouseY != h/2) {
-  //     window.setTimeout(moveView, 1000);
-  //   }
-  // }
+  mouseX=e.offsetX+view.xMin;
+  mouseY=e.offsetY+view.yMin;
 
-  Skeleton.all.forEach(s => s.updateVectors());
+  // Skeleton.all.forEach(s => s.updateVectors());
   // moveView();
 }
 
@@ -302,10 +302,10 @@ function mouseOutListener(e) {
 }
 
 //Listen for clicking
-gameCanvas.addEventListener('click', clickListener)
-function clickListener(e) {
-  Skeleton.all.forEach(s => s.changeState());
-}
+// gameCanvas.addEventListener('click', clickListener)
+// function clickListener(e) {
+//   Skeleton.all.forEach(s => s.changeState());
+// }
 
 function compareZAxis(obj1,obj2) {
     if (obj1.z > obj2.z) {
@@ -328,7 +328,7 @@ function drawObjects(array) {
 }
 
 function renderView(img) {
-  gameCtx.drawImage(img, viewX, viewY, gameCanvas.width, gameCanvas.height, 0, 0, gameCanvas.width, gameCanvas.height);
+  gameCtx.drawImage(img, view.xMin, view.yMin, view.width, view.height, 0, 0, gameCanvas.width, gameCanvas.height);
 }
 
 let objects = [];
@@ -337,8 +337,8 @@ function drawLoop() {
     mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
     //Draw Cursor
-    mapCtx.fillStyle = "red";
-    mapCtx.fillRect(Math.floor(mouseX/tileSize)*tileSize,Math.floor(mouseY/tileSize)*tileSize,tileSize,tileSize);
+    // mapCtx.fillStyle = "red";
+    // mapCtx.fillRect(Math.floor(mouseX/tileSize)*tileSize,Math.floor(mouseY/tileSize)*tileSize,tileSize,tileSize);
 
     objects.sort(compareZAxis);
     drawObjects(objects);
@@ -374,7 +374,7 @@ function generateMap(e) {
     switch(true) {
       case (color === "rgba(255, 165, 0, 255)"):
         //orange pixel
-        objects.push(new Player(32,32,0.5,x*tileSize-tileSize+(tileSize/2),y*tileSize-SCALE*tileSize+(tileSize/2)));
+        objects.push(new Player(32,32,2,x*tileSize-tileSize+(tileSize/2),y*tileSize-SCALE*tileSize+(tileSize/2)));
         break;
       case (color === "rgba(0, 0, 0, 255)"):
         //black pixel

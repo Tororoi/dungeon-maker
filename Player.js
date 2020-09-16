@@ -8,11 +8,11 @@ class Player {
       this.speed = speed;
       this.x = x;
       this.y = y;
-    //   //vectors
-    //   this.xD = 0;
-    //   this.yD = 0;
-    //   this.angle = 0;
-    //   this.vector = 1;
+      //vectors
+      this.xD = 0;
+      this.yD = 0;
+      this.angle = 0;
+      this.vector = 1;
     //   this.pathXD = 0;
     //   this.pathYD = 0;
     //   this.pathAngle = 0;
@@ -51,10 +51,10 @@ class Player {
     get centerX() {return this.x+this.width/2;}
     get centerY() {return this.y+this.height;}
     get z() {return this.centerY;}
-    // get xMax() {return this.x+this.width*0.7;}
-    // get yMax() {return this.y+this.height;}
-    // get xMin() {return this.x+this.width*0.3}
-    // get yMin() {return this.y+this.height*0.85;}
+    get xMax() {return this.x+this.width*0.7;}
+    get yMax() {return this.y+this.height;}
+    get xMin() {return this.x+this.width*0.3}
+    get yMin() {return this.y+this.height*0.85;}
     get gridX() {return Math.floor(this.centerX/32);}
     get gridY() {return Math.floor(this.centerY/32);}
 
@@ -92,13 +92,30 @@ class Player {
     //   }
     // }
 
-    // get target() {
-    //     if (!!mouseX) {
-    //         return [mouseX, mouseY];
-    //     } else {
-    //         return [32,32];
-    //     }
-    // }
+    get target() {
+        let coords = [this.centerX,this.centerY];
+        if (buttonMap.left && this.xMin>0) {
+            // left arrow
+            coords[0] -= 1;
+            if (coords[0] < this.centerX-1) {coords[0] = this.centerX-1}
+        } 
+        if (buttonMap.up && this.yMin>0) {
+            // up arrow
+            coords[1] -= 1;
+            if (coords[1] < this.centerY-1) {coords[1] = this.centerY-1}
+        }
+        if (buttonMap.right && this.xMax<mapCanvas.width) {
+            // right arrow
+            coords[0] += 1;
+            if (coords[0] > this.centerX+1) {coords[0] = this.centerX+1}
+        }
+        if (buttonMap.down && this.yMax<mapCanvas.height) {
+            // down arrow
+            coords[1] += 1;
+            if (coords[1] < this.centerY+1) {coords[1] = this.centerY+1}
+        }
+        return coords;
+    }
 
     updateVectors() {
       //base movement off of offset character coordinates to center of feet of character
@@ -107,55 +124,91 @@ class Player {
       //get the angle of the mouse relative to the character
       this.angle = Math.atan2(this.yD, this.xD)*180/Math.PI;
       this.vector = Math.hypot(this.xD,this.yD);
-      //base movement off of offset character coordinates to center of feet of character
-      this.pathXD = this.pathTarget[0] - (this.centerX);
-      this.pathYD = this.pathTarget[1] - (this.centerY);
-      //get the angle of the mouse relative to the character
-      this.pathAngle = Math.atan2(this.pathYD, this.pathXD)*180/Math.PI;
-      this.pathVector = Math.hypot(this.pathXD,this.pathYD);
-    }
-
-    moveX(dir) {
-        this.x += dir;
-        charX = this.x;
-    }
-
-    moveY(dir) {
-        this.y += dir;
-        charY = this.y;
     }
 
     // move() {
-    //   let deltaX = this.pathXD/this.pathVector
-    //   let deltaY = this.pathYD/this.pathVector
-    //   //movement
-    //     if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
-    //         this.x += deltaX*this.speed*SCALE;
+    //     if (buttonMap.left && this.xMin>0) {
+    //         // left arrow
+    //         this.moveX(-1*this.speed);
+    //     } 
+    //     if (buttonMap.up && this.yMin>0) {
+    //         // up arrow
+    //         this.moveY(-1*this.speed);
     //     }
-    //     if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
-    //         this.y += deltaY*this.speed*SCALE;
+    //     if (buttonMap.right && this.xMax<mapCanvas.width) {
+    //         // right arrow
+    //         this.moveX(this.speed);
     //     }
-    //    //calling the angle math here adjusts character's movement even if mouse stops moving
-    //    this.updateVectors();
+    //     if (buttonMap.down && this.yMax<mapCanvas.height) {
+    //         // down arrow
+    //         this.moveY(this.speed);
+    //     }
     // }
-  
+
+    // moveX(dir) {
+    //     this.x += dir;
+    //     Skeleton.all.forEach(s => s.updateVectors());
+    // }
+
+    // moveY(dir) {
+    //     this.y += dir;
+    //     Skeleton.all.forEach(s => s.updateVectors());
+    // }
+
     // unMoveX() {
-    //   let deltaX = this.pathXD/this.pathVector
-    //   //movement
-    //     if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
-    //         this.x -= deltaX*this.speed*SCALE;
-    //     }
-    //    this.updateVectors();
+    //     if (buttonMap.left && this.xMin>0) {
+    //         // left arrow
+    //         this.moveX(this.speed);
+    //       } 
+    //     if (buttonMap.right && this.xMax<mapCanvas.width) {
+    //         // right arrow
+    //         this.moveX(-1*this.speed);
+    //       }
     // }
-  
+
     // unMoveY() {
-    //   let deltaY = this.pathYD/this.pathVector
-    //   //movement
-    //     if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
-    //         this.y -= deltaY*this.speed*SCALE;
+    //     if (buttonMap.up && this.yMin>0) {
+    //         // up arrow
+    //         this.moveY(this.speed);
     //     }
-    //    this.updateVectors();
+    //     if (buttonMap.down && this.yMax<mapCanvas.height) {
+    //         // down arrow
+    //         this.moveY(-1*this.speed);
+    //     }
     // }
+
+    move() {
+      let deltaX = this.xD/this.vector
+      let deltaY = this.yD/this.vector
+      //movement
+        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
+            this.x += deltaX*this.speed*SCALE;
+        }
+        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
+            this.y += deltaY*this.speed*SCALE;
+        }
+       //calling the angle math here adjusts character's movement even if mouse stops moving
+       this.updateVectors();
+       Skeleton.all.forEach(s => s.updateVectors());
+    }
+  
+    unMoveX() {
+      let deltaX = this.xD/this.vector
+      //movement
+        if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
+            this.x -= deltaX*this.speed*SCALE;
+        }
+       this.updateVectors();
+    }
+  
+    unMoveY() {
+      let deltaY = this.yD/this.vector
+      //movement
+        if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
+            this.y -= deltaY*this.speed*SCALE;
+        }
+       this.updateVectors();
+    }
   
     // animate() {
     //   //run animation
@@ -236,14 +289,17 @@ class Player {
     // }
     
     draw() {
-    //   Wall.all.forEach(b => {
-    //     collide(this, b);
-    //   })
+      Wall.all.forEach(b => {
+        collide(this, b);
+      })
     //   Skeleton.all.forEach(s => {
     //     collide(this,s);
     //   })
+    this.move();
     mapCtx.fillStyle = "orange";
     mapCtx.fillRect(this.gridX*tileSize,this.gridY*tileSize,tileSize,tileSize);
+    mapCtx.fillStyle = "green";
+    mapCtx.fillRect(this.xMin,this.yMin,this.xMax-this.xMin,this.yMax-this.yMin);
     //   this.animate();
     //   this.changeMoving();
     //   this.drawFrame();
