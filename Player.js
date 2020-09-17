@@ -13,6 +13,9 @@ class Player {
       this.yD = 0;
       this.angle = 0;
       this.vector = 1;
+      //collision
+      this.horC = false;
+      this.verC = false;
     //   this.pathXD = 0;
     //   this.pathYD = 0;
     //   this.pathAngle = 0;
@@ -124,50 +127,22 @@ class Player {
     }
 
     move() {
-      let deltaX = this.xD/this.vector
-      let deltaY = this.yD/this.vector
-      //movement
-      if (this.vector != 0) {
-        this.x += deltaX*this.speed*SCALE;
-        this.y += deltaY*this.speed*SCALE;
-        if (this.xMin < 0 || this.xMax > mapCanvas.width) {
-            this.x -= deltaX*this.speed*SCALE;
-          }
-          if (this.yMin < 0 || this.yMax > mapCanvas.height) {
-            this.y -= deltaY*this.speed*SCALE;
-          }
-      }
-        // if (this.xMin + deltaX >= 0 && this.xMax + deltaX <= mapCanvas.width) {
-        //     this.x += deltaX*this.speed*SCALE;
-        // } else {
-        //     this.x -= deltaX*this.speed*SCALE;
-        // }
-        // if (this.yMin + deltaY >= 0 && this.yMax + deltaY <= mapCanvas.height) {
-        //     this.y += deltaY*this.speed*SCALE;
-        // } else {
-        //     this.y -= deltaY*this.speed*SCALE;
-        // }
-       //calling the angle math here adjusts character's movement even if mouse stops moving
-       this.updateVectors();
-       Skeleton.all.forEach(s => s.updateVectors());
-    }
-  
-    unMoveX() {
-      let deltaX = this.xD/this.vector
-      //movement
+        let deltaX = this.xD/this.vector
+        let deltaY = this.yD/this.vector
+        //movement
         if (this.vector != 0) {
-            this.x -= deltaX*this.speed*SCALE;
+            this.x += deltaX*this.speed*SCALE;
+            this.y += deltaY*this.speed*SCALE;
+            if (this.xMin < 0 || this.xMax > mapCanvas.width || this.horC) {
+                this.x -= deltaX*this.speed*SCALE;
+            }
+            if (this.yMin < 0 || this.yMax > mapCanvas.height || this.verC) {
+                this.y -= deltaY*this.speed*SCALE;
+            }
         }
-       this.updateVectors();
-    }
-  
-    unMoveY() {
-      let deltaY = this.yD/this.vector
-      //movement
-        if (this.vector != 0) {
-            this.y -= deltaY*this.speed*SCALE;
-        }
-       this.updateVectors();
+        //calling the angle math here adjusts character's movement even if mouse stops moving
+        this.updateVectors();
+        Skeleton.all.forEach(s => s.updateVectors());
     }
   
     // animate() {
@@ -249,12 +224,15 @@ class Player {
     // }
     
     draw() {
+    let collisions = [];
       Wall.all.forEach(b => {
-        collide(this, b);
+        collisions.push(collide(this, b));
       })
-    //   Skeleton.all.forEach(s => {
-    //     collide(this,s);
-    //   })
+      Skeleton.all.forEach(s => {
+        collisions.push(collide(this,s));
+      })
+    if (collisions.some(c => c[0] === true)) {this.horC = true} else {this.horC = false};
+    if (collisions.some(c => c[1] === true)) {this.verC = true} else {this.verC = false};
     this.move();
     mapCtx.fillStyle = "orange";
     mapCtx.fillRect(this.gridX*tileSize,this.gridY*tileSize,tileSize,tileSize);

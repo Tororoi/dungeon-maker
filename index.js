@@ -219,13 +219,22 @@ function collide(obj1,obj2) {
   let checkSouth = !!((obj1.yMax+Math.sign(obj1.yD)*obj1.speed*SCALE >= obj2.yMin)&&xOverlap&&upOf2);
   let checkNorth = !!((obj1.yMin+Math.sign(obj1.yD)*obj1.speed*SCALE <= obj2.yMax)&&xOverlap&&downOf2);
 
-  if (checkEast||checkWest) {
-    obj1.unMoveX();
+  let horC = false;
+  let verC = false;
+  if (checkEast || checkWest) {
+    horC = true;
   }
+  if (checkSouth || checkNorth) {
+    verC = true;
+  }
+  return [horC,verC];
+  // if (checkEast||checkWest) {
+  //   obj1.unMoveX();
+  // }
 
-  if (checkSouth||checkNorth) {
-    obj1.unMoveY();
-  }
+  // if (checkSouth||checkNorth) {
+  //   obj1.unMoveY();
+  // }
 }
 
 Player.all = [];
