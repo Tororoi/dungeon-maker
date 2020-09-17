@@ -16,10 +16,6 @@ class Player {
       //collision
       this.horC = false;
       this.verC = false;
-    //   this.pathXD = 0;
-    //   this.pathYD = 0;
-    //   this.pathAngle = 0;
-    //   this.pathVector = 1;
     //   //state
     //   this.moving = false;
     //   this.deathState = false;
@@ -41,8 +37,6 @@ class Player {
     //   //set initial framecount
     //   this.frameCount = 0;
     //   this.frameLimit = 4;
-    //   //path target
-    //   this.pathTarget = [0,0];
     Player.all.push(this);
     }
 
@@ -127,12 +121,14 @@ class Player {
     }
 
     move() {
-        let deltaX = this.xD/this.vector
-        let deltaY = this.yD/this.vector
+        //equalize deltas to keep same speed at any angle
+        let deltaX = this.xD/this.vector;
+        let deltaY = this.yD/this.vector;
         //movement
         if (this.vector != 0) {
             this.x += deltaX*this.speed*SCALE;
             this.y += deltaY*this.speed*SCALE;
+            //colliding
             if (this.xMin < 0 || this.xMax > mapCanvas.width || this.horC) {
                 this.x -= deltaX*this.speed*SCALE;
             }
@@ -224,22 +220,22 @@ class Player {
     // }
     
     draw() {
-    let collisions = [];
-      Wall.all.forEach(b => {
-        collisions.push(collide(this, b));
-      })
-      Skeleton.all.forEach(s => {
-        collisions.push(collide(this,s));
-      })
-    if (collisions.some(c => c[0] === true)) {this.horC = true} else {this.horC = false};
-    if (collisions.some(c => c[1] === true)) {this.verC = true} else {this.verC = false};
-    this.move();
-    mapCtx.fillStyle = "orange";
-    mapCtx.fillRect(this.gridX*tileSize,this.gridY*tileSize,tileSize,tileSize);
-    mapCtx.fillStyle = "green";
-    mapCtx.fillRect(this.xMin,this.yMin,this.xMax-this.xMin,this.yMax-this.yMin);
-    //   this.animate();
-    //   this.changeMoving();
-    //   this.drawFrame();
+        let collisions = [];
+        Wall.all.forEach(b => {
+            collisions.push(collide(this, b));
+        })
+        Skeleton.all.forEach(s => {
+            collisions.push(collide(this,s));
+        })
+        if (collisions.some(c => c[0] === true)) {this.horC = true} else {this.horC = false};
+        if (collisions.some(c => c[1] === true)) {this.verC = true} else {this.verC = false};
+        this.move();
+        mapCtx.fillStyle = "orange";
+        mapCtx.fillRect(this.gridX*tileSize,this.gridY*tileSize,tileSize,tileSize);
+        mapCtx.fillStyle = "green";
+        mapCtx.fillRect(this.xMin,this.yMin,this.xMax-this.xMin,this.yMax-this.yMin);
+        //   this.animate();
+        //   this.changeMoving();
+        //   this.drawFrame();
     }
   }

@@ -228,13 +228,6 @@ function collide(obj1,obj2) {
     verC = true;
   }
   return [horC,verC];
-  // if (checkEast||checkWest) {
-  //   obj1.unMoveX();
-  // }
-
-  // if (checkSouth||checkNorth) {
-  //   obj1.unMoveY();
-  // }
 }
 
 Player.all = [];
