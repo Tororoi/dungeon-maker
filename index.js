@@ -288,7 +288,8 @@ function mouseMoveListener(e) {
   //  //get mouse coordinates within the gameCanvas
   mouseX=e.offsetX+view.xMin;
   mouseY=e.offsetY+view.yMin;
-
+  mouseX*=2
+  mouseY*=2
   // Skeleton.all.forEach(s => s.updateVectors());
   // moveView();
 }
